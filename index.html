@@ -60,18 +60,25 @@
 }
 
 [data-theme="pride"] {
-    --bg: linear-gradient(180deg, #fe0000 16.6%, #fd8c00 16.6%, #fd8c00 33.3%, #ffe500 33.3%, #ffe500 50%, #119f0b 50%, #119f0b 66.6%, #0644b3 66.6%, #0644b3 83.3%, #c22edc 83.3%);
+    --bg: linear-gradient(
+        #E50000 0%, #E50000 16.6%, 
+        #FF8D00 16.6%, #FF8D00 33.3%, 
+        #FFEE00 33.3%, #FFEE00 50%, 
+        #028121 50%, #028121 66.6%, 
+        #004CFF 66.6%, #004CFF 83.3%, 
+        #770088 83.3%, #770088 100%
+    );
     --panel: rgba(0,0,0,0.85);
     --accent: #fff;
     --text: #fff;
-    --btn: #222;
+    --btn: rgba(255,255,255,0.1);
     --border: #fff;
-    --glow: rgba(255, 255, 255, 0.3);
+    --glow: rgba(255, 255, 255, 0.4);
 }
 
 /* --- UI STYLES --- */
 * { box-sizing: border-box; font-family: "JetBrains Mono", monospace; transition: background 0.3s; }
-body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg); color: var(--text); }
+body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg); color: var(--text); background-attachment: fixed; }
 body::after { content: ""; position: fixed; bottom: -20vh; left: 50%; transform: translateX(-50%); width: 160vw; height: 70vh; pointer-events: none; z-index: 0; background: radial-gradient(circle at center, var(--glow) 0%, transparent 80%); filter: blur(100px); }
 
 #bootScreen { position: fixed; inset: 0; background: #000; z-index: 10001; padding: 40px; display: flex; flex-direction: column; }
@@ -84,13 +91,13 @@ body::after { content: ""; position: fixed; bottom: -20vh; left: 50%; transform:
 .dot { width: 14px; height: 14px; background: var(--accent); border-radius: 50%; animation: dotPulse 1.4s infinite; }
 @keyframes dotPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0; } 40% { transform: scale(1); opacity: 1; } }
 
-.app { position: relative; display: none; width: 95%; max-width: 900px; height: 85vh; padding: 40px; background: var(--panel); border: 1px solid var(--border); overflow-y: auto; z-index: 5; backdrop-filter: blur(10px); }
+.app { position: relative; display: none; width: 95%; max-width: 900px; height: 85vh; padding: 40px; background: var(--panel); border: 1px solid var(--border); overflow-y: auto; z-index: 5; backdrop-filter: blur(10px); border-radius: 8px; }
 .section { display: none; position: absolute; inset: 0; padding: 35px; flex-direction: column; background: transparent; }
 
 button { width: 100%; padding: 14px; background: var(--btn); border: 1px solid var(--border); color: var(--text); cursor: pointer; margin-bottom: 10px; font-weight: bold; border-radius: 4px; box-shadow: 0 4px 0 #000; text-transform: uppercase; }
 button:hover { filter: brightness(1.2); }
-input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.1); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; outline: none; border-radius: 4px; }
-#frogieList, #gamesList, #bookmarkList { flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 15px; margin: 15px 0; }
+input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; outline: none; border-radius: 4px; }
+#frogieList, #gamesList, #bookmarkList { flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.1); border: 1px solid var(--border); padding: 15px; margin: 15px 0; border-radius: 4px; }
 .back-btn { width: 100px !important; margin: 0 !important; }
 
 #themeCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
@@ -113,7 +120,7 @@ input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.1); border:
 </div>
 
 <div id="passwordOverlay" style="position:fixed; inset:0; background:#0a0a0a; z-index:9999; display:none; align-items:center; justify-content:center;">
-   <div style="padding:45px; background:#111; border:1px solid #333; text-align:center; width:350px;">
+   <div style="padding:45px; background:#111; border:1px solid #333; text-align:center; width:350px; border-radius: 8px;">
       <h2 style="color:#fff; letter-spacing:2px; font-size:18px;">RESTRICTED</h2>
       <input id="passInput" type="password" placeholder="Keyphrase">
       <button id="loginBtn">Unlock System</button>
@@ -145,6 +152,7 @@ input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.1); border:
 
    <div id="settingsPage" class="section">
         <div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Settings</h3></div>
+        <label style="font-size: 12px; margin-bottom: 5px; display: block;">Theme Selection</label>
         <select id="themeSelect">
             <option value="default">Default Dark</option>
             <option value="blue-aura">Blue Aura</option>
@@ -156,7 +164,7 @@ input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.1); border:
             <span style="font-size: 12px;">Light Mode (Default Only)</span>
             <input type="checkbox" id="lightToggle" style="width:auto; margin:0;">
         </div>
-        <button id="saveSettings">Apply Config</button>
+        <p style="font-size: 10px; opacity: 0.5;">Settings apply automatically on change.</p>
    </div>
 
    <div id="frogiePage" class="section">
@@ -179,7 +187,7 @@ const PASSWORD = "aidensucksdih";
 const tips = ["Aiden got nothing on this", "Aiden still thinks he's in the group?", "GoGuardian is a myth", "I'd cook y'all in Roblox Rivals"];
 let lastTipIndex = -1, animationId;
 
-/* --- DATABASE --- */
+/* --- DATASETS --- */
 const games = [
     { label: "DoggyD1mwit's Emulator", url: "https://doggyd1mwit-emulator.vercel.app/" },
     { label: "Now.gg", url: "https://nowgg.fun" },
@@ -214,49 +222,54 @@ const frogieLinks = [
    { label: "Arcade Instance 20", url: "https://frogiesarcade.xyz" }
 ];
 
-let bookmarks = JSON.parse(localStorage.getItem("lair_bookmarks")) || [];
+let bookmarks = JSON.parse(localStorage.getItem("lair_bms")) || [];
 
-/* --- SEARCH & FILTER LOGIC --- */
-function setupSearch() {
-    // Frogie Filter
-    document.getElementById('searchFrogie').addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = frogieLinks.filter(item => item.label.toLowerCase().includes(term));
-        render(filtered, 'frogieList');
-    });
+/* --- CORE FUNCTIONS --- */
 
-    // Games Filter
-    document.getElementById('searchGames').addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = games.filter(item => item.label.toLowerCase().includes(term));
-        render(filtered, 'gamesList');
-    });
+function autoApplySettings() {
+    const t = document.getElementById("themeSelect").value;
+    const l = document.getElementById("lightToggle").checked;
+    const wrap = document.getElementById("lightToggleWrap");
 
-    // Enter Key Logic
-    document.addEventListener('keydown', (e) => {
-        if (e.key === "Enter") {
-            const active = document.activeElement;
-            if (active.id === "passInput") document.getElementById("loginBtn").click();
-            if (active.id === "customUrl") handleMainLaunch();
-            if (active.id === "bmName" || active.id === "bmUrl") document.getElementById("addBookmark").click();
-            if (active.id === "cloakName" || active.id === "cloakIcon") document.getElementById("applyCloak").click();
-        }
-    });
+    document.body.setAttribute("data-theme", t);
+    document.body.setAttribute("data-light", l);
+
+    if(t === "default") wrap.classList.remove("disabled");
+    else { wrap.classList.add("disabled"); }
+
+    initThemeAnims(t);
 }
 
-function handleMainLaunch() {
-    const input = document.getElementById("customUrl").value.trim();
-    if (!input) return;
-    let target = input;
-    if (!input.includes(".") || input.includes(" ")) {
-        target = "https://www.google.com/search?q=" + encodeURIComponent(input);
+function handleSearch() {
+    const query = document.getElementById("customUrl").value.trim();
+    if(!query) return;
+
+    let url = query;
+    if(!query.includes(".") || query.includes(" ")) {
+        url = "https://www.google.com/search?q=" + encodeURIComponent(query);
     } else {
-        if (!input.startsWith("http")) target = "https://" + input;
+        if(!query.startsWith("http")) url = "https://" + query;
     }
-    openP(target);
+    openP(url);
 }
 
-/* --- BOOT ENGINE --- */
+function openP(u) {
+    // This method bypasses frame blocks by creating a new blank document window
+    const win = window.open("about:blank", "_blank");
+    if (!win) return alert("Pop-up blocked! Allow pop-ups to launch sites.");
+    
+    win.document.body.style.margin = "0";
+    win.document.body.style.height = "100vh";
+    const iframe = win.document.createElement("iframe");
+    iframe.style.border = "none";
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.src = u;
+    win.document.body.appendChild(iframe);
+}
+
+/* --- BOOT & INITIALIZATION --- */
+
 function initBoot() {
     const log = document.getElementById("bootLog");
     const bar = document.getElementById("bootBar");
@@ -272,13 +285,109 @@ function initBoot() {
     }, 15);
     ["> Syncing Arcade Directory...", "> Initializing Theme Engine...", "> Loading User Assets..."].forEach((l, i) => setTimeout(() => { log.innerHTML += `<div>${l}</div>`; }, i * 400));
 }
-initBoot();
 
-/* --- THEMES & ANIMATION --- */
+window.onload = () => {
+    initBoot();
+    
+    // Auto-Apply listeners
+    document.getElementById("themeSelect").addEventListener("change", autoApplySettings);
+    document.getElementById("lightToggle").addEventListener("change", autoApplySettings);
+
+    // Search filters
+    document.getElementById("searchFrogie").addEventListener("input", (e) => {
+        const val = e.target.value.toLowerCase();
+        render(frogieLinks.filter(x => x.label.toLowerCase().includes(val)), 'frogieList');
+    });
+    document.getElementById("searchGames").addEventListener("input", (e) => {
+        const val = e.target.value.toLowerCase();
+        render(games.filter(x => x.label.toLowerCase().includes(val)), 'gamesList');
+    });
+
+    // Enter Key
+    document.addEventListener("keydown", (e) => {
+        if(e.key === "Enter") {
+            const active = document.activeElement;
+            if(active.id === "passInput") document.getElementById("loginBtn").click();
+            if(active.id === "customUrl") handleSearch();
+            if(active.id === "bmName" || active.id === "bmUrl") document.getElementById("addBookmark").click();
+        }
+    });
+};
+
+/* --- UI LOGIC --- */
+
+function nav(id) {
+    const s = document.getElementById("transitionScreen");
+    let idx; do { idx = Math.floor(Math.random()*tips.length); } while(idx === lastTipIndex);
+    lastTipIndex = idx; document.getElementById("transitionTip").textContent = tips[idx];
+    s.style.display = "flex";
+    setTimeout(() => { s.style.display="none"; switchPage(id); }, 1000);
+}
+
+function switchPage(id) {
+    document.getElementById("mainPage").style.display = "none";
+    document.querySelectorAll('.section').forEach(x => x.style.display = "none");
+    const t = document.getElementById(id); t.style.display = (id === "mainPage") ? "block" : "flex";
+    if(id === 'frogiePage') render(frogieLinks, 'frogieList');
+    if(id === 'gamesPage') render(games, 'gamesList');
+    if(id === 'bookmarkPage') renderBms();
+}
+
+function render(l, id) {
+    const c = document.getElementById(id); c.innerHTML = "";
+    l.forEach(i => { const b = document.createElement("button"); b.textContent = i.label; b.onclick = () => openP(i.url); c.appendChild(b); });
+}
+
+function renderBms() {
+    const c = document.getElementById("bookmarkList"); c.innerHTML = "";
+    bookmarks.forEach((bm, i) => {
+        const d = document.createElement("div"); d.style.display = "flex"; d.style.gap = "5px";
+        const b = document.createElement("button"); b.textContent = bm.label; b.style.flexGrow = "1";
+        b.onclick = () => openP(bm.url);
+        const del = document.createElement("button"); del.textContent = "X"; del.style.width = "45px"; del.style.background = "#600";
+        del.onclick = () => { bookmarks.splice(i, 1); localStorage.setItem("lair_bms", JSON.stringify(bookmarks)); renderBms(); };
+        d.append(b, del); c.appendChild(d);
+    });
+}
+
+document.getElementById("addBookmark").onclick = () => {
+    const n = document.getElementById("bmName").value, u = document.getElementById("bmUrl").value;
+    if(n && u) {
+        bookmarks.push({ label: n, url: u });
+        localStorage.setItem("lair_bms", JSON.stringify(bookmarks));
+        document.getElementById("bmName").value = ""; document.getElementById("bmUrl").value = "";
+        renderBms();
+    }
+};
+
+document.getElementById("loginBtn").onclick = () => {
+    if(document.getElementById("passInput").value === PASSWORD) {
+        document.getElementById("passwordOverlay").style.display = "none";
+        document.getElementById("appContainer").style.display = "block";
+    } else { alert("WRONG KEY"); }
+};
+
+document.getElementById("openCustom").onclick = handleSearch;
+
+document.getElementById("applyCloak").onclick = () => {
+    const n = document.getElementById("cloakName").value, i = document.getElementById("cloakIcon").value;
+    if(n) document.title = n; if(i) document.getElementById("favicon").href = i;
+};
+document.getElementById("resetCloak").onclick = () => {
+    document.title = "DoggyD1mwit's Lair";
+    document.getElementById("favicon").href = "https://www.google.com/favicon.ico";
+};
+document.getElementById("abCloakBtn").onclick = () => {
+    const w = window.open("about:blank", "_blank");
+    w.document.write(`<iframe src="${window.location.href}" style="width:100%;height:100vh;border:none;"></iframe>`);
+    w.document.body.style.margin = "0";
+};
+
+/* --- ANIMATION ENGINE --- */
 const canvas = document.getElementById("themeCanvas");
 const ctx = canvas.getContext("2d");
 
-function initTheme(theme) {
+function initThemeAnims(theme) {
     cancelAnimationFrame(animationId);
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -305,7 +414,7 @@ function initTheme(theme) {
     } else if (theme === "hacker") {
         const cols = canvas.width / 14, drops = Array(Math.floor(cols)).fill(1);
         function drawHacker() {
-            ctx.fillStyle = "rgba(0,0,0,0.08)"; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.fillStyle = "#0f0"; ctx.font = "14px monospace";
             drops.forEach((y, i) => {
                 ctx.fillText(Math.floor(Math.random()*2), i*14, y*14);
@@ -316,101 +425,6 @@ function initTheme(theme) {
         drawHacker();
     }
 }
-
-/* --- CORE UI LOGIC --- */
-document.getElementById("saveSettings").onclick = () => {
-    const t = document.getElementById("themeSelect").value;
-    document.body.setAttribute("data-theme", t);
-    document.body.setAttribute("data-light", document.getElementById("lightToggle").checked);
-    initTheme(t);
-};
-
-document.getElementById("applyCloak").onclick = () => {
-    const n = document.getElementById("cloakName").value, i = document.getElementById("cloakIcon").value;
-    if(n) document.title = n; if(i) document.getElementById("favicon").href = i;
-};
-document.getElementById("resetCloak").onclick = () => {
-    document.title = "DoggyD1mwit's Lair";
-    document.getElementById("favicon").href = "https://www.google.com/favicon.ico";
-};
-
-document.getElementById("abCloakBtn").onclick = () => {
-    const w = window.open("about:blank", "_blank");
-    w.document.write(`<iframe src="${window.location.href}" style="width:100%;height:100vh;border:none;"></iframe>`);
-    w.document.body.style.margin = "0";
-};
-
-function nav(id) {
-    const s = document.getElementById("transitionScreen");
-    let idx; do { idx = Math.floor(Math.random()*tips.length); } while(idx === lastTipIndex);
-    lastTipIndex = idx; document.getElementById("transitionTip").textContent = tips[idx];
-    s.style.display = "flex";
-    setTimeout(() => { s.style.display="none"; switchPage(id); }, 1000);
-}
-
-function switchPage(id) {
-    document.getElementById("mainPage").style.display = "none";
-    document.querySelectorAll('.section').forEach(x => x.style.display = "none");
-    const t = document.getElementById(id); t.style.display = (id === "mainPage") ? "block" : "flex";
-    if(id === 'frogiePage') render(frogieLinks, 'frogieList');
-    if(id === 'gamesPage') render(games, 'gamesList');
-    if(id === 'bookmarkPage') renderBookmarks();
-}
-
-function render(l, id) {
-    const c = document.getElementById(id); c.innerHTML = "";
-    l.forEach(i => { const b = document.createElement("button"); b.textContent = i.label; b.onclick = () => openP(i.url); c.appendChild(b); });
-}
-
-function renderBookmarks() {
-    const c = document.getElementById("bookmarkList"); c.innerHTML = "";
-    bookmarks.forEach((bm, i) => {
-        const wrap = document.createElement("div"); wrap.style.display = "flex"; wrap.style.gap="5px";
-        const b = document.createElement("button"); b.textContent = bm.label; b.style.flexGrow = "1";
-        b.onclick = () => openP(bm.url);
-        const del = document.createElement("button"); del.textContent = "X"; del.style.width="45px"; del.style.background="#600";
-        del.onclick = () => { bookmarks.splice(i, 1); localStorage.setItem("lair_bookmarks", JSON.stringify(bookmarks)); renderBookmarks(); };
-        wrap.append(b, del); c.appendChild(wrap);
-    });
-}
-
-document.getElementById("addBookmark").onclick = () => {
-    const n = document.getElementById("bmName").value, u = document.getElementById("bmUrl").value;
-    if(n && u) {
-        bookmarks.push({ label: n, url: u });
-        localStorage.setItem("lair_bookmarks", JSON.stringify(bookmarks));
-        document.getElementById("bmName").value = ""; document.getElementById("bmUrl").value = "";
-        renderBookmarks();
-    }
-};
-
-function openP(u) {
-    const w = window.open("about:blank", "_blank");
-    const ifr = w.document.createElement("iframe");
-    ifr.src = u;
-    ifr.style.width="100%"; ifr.style.height="100vh"; ifr.style.border="none";
-    w.document.body.style.margin="0"; w.document.body.appendChild(ifr);
-}
-
-document.getElementById("loginBtn").onclick = () => {
-    if(document.getElementById("passInput").value === PASSWORD) {
-        document.getElementById("passwordOverlay").style.display = "none";
-        document.getElementById("appContainer").style.display = "block";
-    } else {
-        alert("ACCESS DENIED");
-    }
-};
-
-document.getElementById("openCustom").onclick = handleMainLaunch;
-
-document.getElementById("themeSelect").onchange = function() {
-    const wrap = document.getElementById("lightToggleWrap");
-    if(this.value === "default") wrap.classList.remove("disabled");
-    else { wrap.classList.add("disabled"); document.getElementById("lightToggle").checked = false; }
-};
-
-// Start listeners
-setupSearch();
 </script>
 </body>
 </html>
