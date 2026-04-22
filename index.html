@@ -82,8 +82,10 @@ body { margin: 0; height: 100vh; display: flex; align-items: center; justify-con
 
 #bootScreen { position: fixed; inset: 0; background: #000; z-index: 10001; padding: 40px; display: flex; flex-direction: column; }
 #bootLog { width: 100%; flex-grow: 1; overflow-y: auto; color: #fff; font-size: 11px; line-height: 1.4; margin-bottom: 20px; scroll-behavior: smooth; }
-.progress-container { width: 100%; max-width: 600px; height: 4px; background: #111; margin: 0 auto; overflow: hidden; }
-.progress-bar { width: 0%; height: 100%; background: #fff; transition: width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); }
+.progress-wrapper { width: 100%; max-width: 600px; margin: 0 auto; text-align: center; }
+.progress-container { width: 100%; height: 4px; background: #111; overflow: hidden; margin-top: 10px; }
+.progress-bar { width: 0%; height: 100%; background: #fff; transition: width 0.1s linear; }
+#bootPercent { font-size: 14px; color: #fff; font-weight: bold; }
 
 #passwordOverlay { position: fixed; inset: 0; background: #0a0a0a; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s ease; }
 #passwordOverlay.visible { opacity: 1; pointer-events: all; }
@@ -94,6 +96,11 @@ body { margin: 0; height: 100vh; display: flex; align-items: center; justify-con
 button { width: 100%; padding: 14px; background: var(--btn); border: 1px solid var(--border); color: var(--text); cursor: pointer; margin-bottom: 10px; font-weight: bold; box-shadow: 0 4px 0 #000; text-transform: uppercase; }
 button:hover { filter: brightness(1.2); transform: translateY(-1px); }
 input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; outline: none; }
+
+/* Custom Context Menu */
+#customMenu { position: fixed; display: none; z-index: 10000; background: #1a1a1a; border: 1px solid #fff; box-shadow: 5px 5px 0 #000; }
+#customMenu button { margin: 0; padding: 10px 20px; width: auto; border: none; box-shadow: none; font-size: 12px; }
+#customMenu button:hover { background: #ff0000; color: #fff; }
 
 .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -118,9 +125,14 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
 
 <canvas id="themeCanvas"></canvas>
 
+<div id="customMenu"><button id="delBmBtn">REMOVE</button></div>
+
 <div id="bootScreen">
     <div id="bootLog"></div>
-    <div class="progress-container"><div id="bootBar" class="progress-bar"></div></div>
+    <div class="progress-wrapper">
+        <div id="bootPercent">0%</div>
+        <div class="progress-container"><div id="bootBar" class="progress-bar"></div></div>
+    </div>
 </div>
 
 <div id="transitionScreen">
@@ -189,11 +201,12 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
 
    <div id="cloakPage" class="section">
         <div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Cloaking</h3></div>
-        <input id="cloakName" placeholder="Tab Name"><input id="cloakIcon" placeholder="Favicon Link">
+        <input id="cloakName" placeholder="Tab Name" value="Classes">
+        <input id="cloakIcon" placeholder="Favicon Link" value="https://www.gstatic.com/classroom/favicon.png">
         <button id="applyCloak">Update Identity</button>
         <button id="resetCloak" style="background:#444; border:none; box-shadow:none;">Reset</button>
         <hr style="border:0; border-top:1px solid var(--border); margin: 20px 0;">
-        <button id="abCloakBtn">Launch about:blank</button>
+        <button id="abCloakBtn">Launch about:blank Stealth</button>
    </div>
 </div>
 
@@ -202,6 +215,10 @@ const PASSWORD = "aidensucksdih";
 const tips = ["Aiden got nothing on this", "Aiden still thinks he's in the group?", "GoGuardian is a myth", "I'd cook y'all in Roblox Rivals"];
 let lastTipIndex = -1;
 let animationId;
+let currentBmIdx = -1;
+
+/* --- STORAGE INITIALIZATION --- */
+let bookmarks = JSON.parse(localStorage.getItem("lair_bookmarks")) || [];
 
 const games = [
     { label: "DoggyD1mwit's Emulator", url: "https://doggyd1mwit-emulator.vercel.app/" },
@@ -239,51 +256,40 @@ const frogieLinks = [
 
 const bootMessages = [
     "D1MWIT_BIOS v4.02 Initializing...",
-    "CPU: Doggy-Dimwit Core i9 @ 5.4GHz detected.",
-    "Memory Test: 65536MB OK.",
-    "Detecting hardware peripherals...",
-    "Keyboard... Found.",
-    "Display... Found (UltraWide/OLED).",
-    "Initializing bypass protocols...",
-    "Scanning for active network filters...",
-    "GoGuardian detection: FAILED (Obfuscated).",
-    "Lightspeed Filter: Status Bypass.",
-    "Securly Instance: Isolated.",
+    "CPU: Doggy-Dimwit Core i9 detected.",
+    "GoGuardian detection: FAILED.",
     "Injecting stealth scripts into kernel...",
-    "Synchronizing with Arcade servers...",
-    "Fetching node list [20/20 active]...",
     "Mounting /dev/lair/games...",
     "Verifying Aiden's skill level... ERROR: NOT_FOUND.",
-    "Clearing temporary browser cache...",
-    "Setting up virtual sandbox environment...",
-    "Applying CSS layer obfuscation...",
-    "Masking hardware fingerprint ID...",
-    "Rotating residential proxy addresses...",
     "Establishing secure WebSocket connection...",
     "Initializing Theme Engine: V-SYNC Enabled.",
-    "Compiling UI shaders...",
-    "Loading Mainframe resources...",
-    "System check complete. No threats found.",
     "BOOT SEQUENCE FINISHED.",
     "SYSTEM READY."
 ];
 
+/* --- BOOT SYSTEM --- */
 function initBoot() {
     const log = document.getElementById("bootLog");
     const bar = document.getElementById("bootBar");
+    const percText = document.getElementById("bootPercent");
     let currentLine = 0;
+    
     window.bootInterval = setInterval(() => {
         if (currentLine < bootMessages.length) {
             const div = document.createElement("div");
             div.textContent = "> " + bootMessages[currentLine];
             log.appendChild(div);
             log.scrollTop = log.scrollHeight;
-            bar.style.width = ((currentLine + 1) / bootMessages.length * 100) + "%";
+            
+            let p = Math.floor(((currentLine + 1) / bootMessages.length) * 100);
+            bar.style.width = p + "%";
+            percText.textContent = p + "%";
+            
             currentLine++;
         } else {
             finishBoot();
         }
-    }, 120);
+    }, 150);
 }
 
 function finishBoot() {
@@ -298,6 +304,83 @@ function finishBoot() {
     }, 800);
 }
 
+/* --- CLOAKING LOGIC --- */
+document.getElementById("applyCloak").onclick = () => {
+    const name = document.getElementById("cloakName").value;
+    const icon = document.getElementById("cloakIcon").value;
+    document.title = name;
+    document.getElementById("tabTitle").textContent = name;
+    document.getElementById("favicon").href = icon;
+    localStorage.setItem("lair_cloakName", name);
+    localStorage.setItem("lair_cloakIcon", icon);
+};
+
+document.getElementById("resetCloak").onclick = () => {
+    document.title = "DoggyD1mwit's Lair";
+    document.getElementById("favicon").href = "https://www.google.com/favicon.ico";
+    localStorage.removeItem("lair_cloakName");
+    localStorage.removeItem("lair_cloakIcon");
+};
+
+document.getElementById("abCloakBtn").onclick = () => {
+    const url = window.location.href;
+    const win = window.open("about:blank", "_blank");
+    if (win) {
+        win.document.body.style.margin = "0";
+        win.document.body.style.height = "100vh";
+        const iframe = win.document.createElement("iframe");
+        iframe.style = "border:none;width:100%;height:100%;";
+        iframe.src = url;
+        win.document.body.appendChild(iframe);
+        // Redirect current tab to Classroom
+        window.location.replace("https://classroom.google.com");
+    }
+};
+
+/* --- BOOKMARK LOGIC --- */
+function renderBms() {
+    const c = document.getElementById("bookmarkList");
+    c.innerHTML = "";
+    bookmarks.forEach((bm, i) => {
+        const b = document.createElement("button");
+        b.textContent = bm.label;
+        b.onclick = () => openP(bm.url);
+        b.oncontextmenu = (e) => {
+            e.preventDefault();
+            currentBmIdx = i;
+            const menu = document.getElementById("customMenu");
+            menu.style.display = "block";
+            menu.style.left = e.pageX + "px";
+            menu.style.top = e.pageY + "px";
+        };
+        c.appendChild(b);
+    });
+}
+
+document.getElementById("addBookmark").onclick = () => {
+    const n = document.getElementById("bmName").value;
+    const u = document.getElementById("bmUrl").value;
+    if (n && u) {
+        bookmarks.push({ label: n, url: u });
+        localStorage.setItem("lair_bookmarks", JSON.stringify(bookmarks));
+        document.getElementById("bmName").value = "";
+        document.getElementById("bmUrl").value = "";
+        renderBms();
+    }
+};
+
+document.getElementById("delBmBtn").onclick = () => {
+    if (currentBmIdx > -1) {
+        bookmarks.splice(currentBmIdx, 1);
+        localStorage.setItem("lair_bookmarks", JSON.stringify(bookmarks));
+        renderBms();
+        document.getElementById("customMenu").style.display = "none";
+    }
+};
+
+window.onclick = () => document.getElementById("customMenu").style.display = "none";
+
+/* --- CORE APP LOGIC --- */
 document.getElementById("loginBtn").onclick = () => {
     if(document.getElementById("passInput").value === PASSWORD) {
         document.getElementById("passwordOverlay").classList.add("swipe-up");
@@ -305,28 +388,13 @@ document.getElementById("loginBtn").onclick = () => {
     } else { alert("ACCESS DENIED"); }
 };
 
-/* --- ENTER KEY LOGIC --- */
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         const active = document.activeElement;
-        const boot = document.getElementById("bootScreen");
-        const pass = document.getElementById("passwordOverlay");
-
-        if (boot.style.display !== "none") {
-            finishBoot();
-            return;
-        }
-        if (pass.classList.contains("visible") && !pass.classList.contains("swipe-up")) {
-            document.getElementById("loginBtn").click();
-            return;
-        }
-        if (active.id === "customUrl") {
-            document.getElementById("openCustom").click();
-        } else if (active.id === "bmName" || active.id === "bmUrl") {
-            document.getElementById("addBookmark").click();
-        } else if (active.id === "cloakName" || active.id === "cloakIcon") {
-            document.getElementById("applyCloak").click();
-        }
+        if (document.getElementById("bootScreen").style.display !== "none") { finishBoot(); return; }
+        if (document.getElementById("passwordOverlay").classList.contains("visible") && !document.getElementById("passwordOverlay").classList.contains("swipe-up")) { document.getElementById("loginBtn").click(); return; }
+        if (active.id === "customUrl") document.getElementById("openCustom").click();
+        if (active.id === "bmName" || active.id === "bmUrl") document.getElementById("addBookmark").click();
     }
 });
 
@@ -352,6 +420,7 @@ function nav(id) {
         t.style.display = (id === "mainPage") ? "block" : "flex";
         if(id === 'frogiePage') renderList(frogieLinks, 'frogieList');
         if(id === 'gamesPage') renderList(games, 'gamesList');
+        if(id === 'bookmarkPage') renderBms();
     }, 1000);
 }
 
@@ -364,6 +433,7 @@ function renderList(l, id) {
     });
 }
 
+/* --- THEME ANIMATIONS --- */
 const canvas = document.getElementById("themeCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -389,14 +459,12 @@ function initThemeAnims(theme) {
 document.getElementById("themeSelect").onchange = (e) => {
     const val = e.target.value;
     document.body.setAttribute("data-theme", val);
-    const toggle = document.getElementById("lightToggle");
-    const row = document.getElementById("lightToggleRow");
     if(val !== "default") {
-        toggle.checked = false;
+        document.getElementById("lightToggle").checked = false;
         document.body.setAttribute("data-light", "false");
-        row.classList.add("switch-locked");
+        document.getElementById("lightToggleRow").classList.add("switch-locked");
     } else {
-        row.classList.remove("switch-locked");
+        document.getElementById("lightToggleRow").classList.remove("switch-locked");
     }
     initThemeAnims(val);
 };
@@ -406,7 +474,15 @@ document.getElementById("lightToggle").onchange = (e) => {
 };
 
 document.getElementById("openCustom").onclick = () => openP(document.getElementById("customUrl").value);
-window.onload = initBoot;
+
+// Load Cloak on Startup
+window.onload = () => {
+    initBoot();
+    const cN = localStorage.getItem("lair_cloakName");
+    const cI = localStorage.getItem("lair_cloakIcon");
+    if(cN) { document.title = cN; document.getElementById("tabTitle").textContent = cN; }
+    if(cI) document.getElementById("favicon").href = cI;
+};
 </script>
 </body>
 </html>
