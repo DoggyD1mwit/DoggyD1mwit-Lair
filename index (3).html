@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link id="favicon" rel="icon" href="https://www.google.com/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="tabTitle">DoggyD1mwit's Lair</title>
+
+<style>
+/* --- THEME ENGINE --- */
+:root {
+    --bg: #050505;
+    --panel: linear-gradient(145deg, #181818, #0a0a0a);
+    --accent: #fff;
+    --text: #e0e0e0;
+    --btn: linear-gradient(180deg, #2a2a2a, #161616);
+    --border: #333;
+    --glow: rgba(255,255,255,0.25);
+}
+
+[data-theme="default"][data-light="true"] {
+    --bg: #f0f0f0;
+    --panel: #ffffff;
+    --accent: #000;
+    --text: #1a1a1a;
+    --btn: #e0e0e0;
+    --border: #ccc;
+    --glow: rgba(0,0,0,0.1);
+}
+
+[data-theme="blue-aura"] {
+    --bg: #001219;
+    --panel: rgba(255, 255, 255, 0.1);
+    --accent: #00e5ff;
+    --text: #e9d8a6;
+    --btn: rgba(255, 255, 255, 0.05);
+    --border: rgba(0, 229, 255, 0.3);
+    --glow: rgba(0, 229, 255, 0.4);
+}
+
+[data-theme="sakura"] {
+    --bg: #2d1b2e;
+    --panel: linear-gradient(145deg, #4a2c4d, #2d1b2e);
+    --accent: #ffb7c5;
+    --text: #ffe5ec;
+    --btn: #5e3661;
+    --border: #ff85a1;
+    --glow: rgba(255, 183, 197, 0.5);
+}
+
+[data-theme="hacker"] {
+    --bg: #000;
+    --panel: #050505;
+    --accent: #00ff41;
+    --text: #00ff41;
+    --btn: #001100;
+    --border: #003300;
+    --glow: rgba(0, 255, 65, 0.3);
+}
+
+[data-theme="pride"] {
+    --bg: linear-gradient(180deg, #fe0000 16.6%, #fd8c00 16.6%, #fd8c00 33.3%, #ffe500 33.3%, #ffe500 50%, #119f0b 50%, #119f0b 66.6%, #0644b3 66.6%, #0644b3 83.3%, #c22edc 83.3%);
+    --panel: rgba(0,0,0,0.85);
+    --accent: #fff;
+    --text: #fff;
+    --btn: #222;
+    --border: #fff;
+    --glow: rgba(255, 255, 255, 0.3);
+}
+
+/* --- UI STYLES --- */
+* { box-sizing: border-box; font-family: "JetBrains Mono", monospace; transition: background 0.3s; }
+body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg); color: var(--text); }
+body::after { content: ""; position: fixed; bottom: -20vh; left: 50%; transform: translateX(-50%); width: 160vw; height: 70vh; pointer-events: none; z-index: 0; background: radial-gradient(circle at center, var(--glow) 0%, transparent 80%); filter: blur(100px); }
+
+#bootScreen { position: fixed; inset: 0; background: #000; z-index: 10001; padding: 40px; display: flex; flex-direction: column; }
+#bootLog { width: 100%; flex-grow: 1; overflow: hidden; color: #fff; font-size: 13px; }
+.progress-container { width: 100%; max-width: 500px; height: 8px; background: #111; border: 1px solid #333; margin: 0 auto; }
+.progress-bar { width: 0%; height: 100%; background: #fff; }
+
+#transitionScreen { position: fixed; inset: 0; background: var(--bg); z-index: 9998; display: none; flex-direction: column; align-items: center; justify-content: center; }
+.dot-container { display: flex; gap: 10px; }
+.dot { width: 14px; height: 14px; background: var(--accent); border-radius: 50%; animation: dotPulse 1.4s infinite; }
+@keyframes dotPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0; } 40% { transform: scale(1); opacity: 1; } }
+
+.app { position: relative; display: none; width: 95%; max-width: 900px; height: 85vh; padding: 40px; background: var(--panel); border: 1px solid var(--border); overflow-y: auto; z-index: 5; backdrop-filter: blur(10px); }
+.section { display: none; position: absolute; inset: 0; padding: 35px; flex-direction: column; background: transparent; }
+
+button { width: 100%; padding: 14px; background: var(--btn); border: 1px solid var(--border); color: var(--text); cursor: pointer; margin-bottom: 10px; font-weight: bold; border-radius: 4px; box-shadow: 0 4px 0 #000; text-transform: uppercase; }
+button:hover { filter: brightness(1.2); }
+input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.1); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; outline: none; border-radius: 4px; }
+#frogieList, #gamesList, #bookmarkList { flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 15px; margin: 15px 0; }
+.back-btn { width: 100px !important; margin: 0 !important; }
+
+#themeCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+.switch-wrap { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(0,0,0,0.1); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 15px; }
+.switch-wrap.disabled { opacity: 0.3; pointer-events: none; }
+</style>
+</head>
+<body data-theme="default" data-light="false">
+
+<canvas id="themeCanvas"></canvas>
+
+<div id="bootScreen">
+    <div id="bootLog"></div>
+    <div class="progress-container"><div id="bootBar" class="progress-bar"></div></div>
+</div>
+
+<div id="transitionScreen">
+    <div class="dot-container"><div class="dot dot1"></div><div class="dot dot2"></div><div class="dot dot3"></div></div>
+    <div id="transitionTip" style="margin-top:20px; font-size: 14px;">Preparing environment...</div>
+</div>
+
+<div id="passwordOverlay" style="position:fixed; inset:0; background:#0a0a0a; z-index:9999; display:none; align-items:center; justify-content:center;">
+   <div style="padding:45px; background:#111; border:1px solid #333; text-align:center; width:350px;">
+      <h2 style="color:#fff; letter-spacing:2px; font-size:18px;">RESTRICTED</h2>
+      <input id="passInput" type="password" placeholder="Keyphrase">
+      <button id="loginBtn">Unlock System</button>
+   </div>
+</div>
+
+<div class="app" id="appContainer">
+   <div id="mainPage">
+      <h2 style="letter-spacing:6px;">DOGGYD1MWIT'S LAIR</h2>
+      <input id="customUrl" type="text" placeholder="URL or Search Query">
+      <button id="openCustom">Launch</button>
+      <hr style="border:0; border-top:1px solid var(--border); margin: 25px 0;">
+      <button onclick="nav('frogiePage')">Frogie's Arcade</button>
+      <button onclick="nav('gamesPage')">Games Library</button>
+      <button onclick="nav('bookmarkPage')">System Bookmarks</button>
+      <button onclick="nav('cloakPage')">Cloaking & Stealth</button>
+      <button onclick="nav('settingsPage')" style="opacity:0.6;">Settings</button>
+   </div>
+
+   <div id="cloakPage" class="section">
+        <div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Cloaking</h3></div>
+        <input id="cloakName" placeholder="Tab Name">
+        <input id="cloakIcon" placeholder="Favicon Link">
+        <button id="applyCloak">Update Identity</button>
+        <button id="resetCloak" style="background:#444; border:none; box-shadow:none;">Reset to Default</button>
+        <hr style="border:0; border-top:1px solid var(--border); margin: 20px 0;">
+        <button id="abCloakBtn">Launch about:blank</button>
+   </div>
+
+   <div id="settingsPage" class="section">
+        <div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Settings</h3></div>
+        <select id="themeSelect">
+            <option value="default">Default Dark</option>
+            <option value="blue-aura">Blue Aura</option>
+            <option value="sakura">Sakura</option>
+            <option value="hacker">Hacker</option>
+            <option value="pride">Pride</option>
+        </select>
+        <div id="lightToggleWrap" class="switch-wrap">
+            <span style="font-size: 12px;">Light Mode (Default Only)</span>
+            <input type="checkbox" id="lightToggle" style="width:auto; margin:0;">
+        </div>
+        <button id="saveSettings">Apply Config</button>
+   </div>
+
+   <div id="frogiePage" class="section">
+      <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchFrogie" placeholder="Filter Arcade..."></div>
+      <div id="frogieList"></div>
+   </div>
+   <div id="gamesPage" class="section">
+      <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchGames" placeholder="Filter Games..."></div>
+      <div id="gamesList"></div>
+   </div>
+   <div id="bookmarkPage" class="section">
+      <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Bookmarks</h3></div>
+      <div id="bookmarkList"></div>
+      <div style="display:flex; gap:8px;"><input id="bmName" placeholder="Name"><input id="bmUrl" placeholder="URL"><button id="addBookmark" style="width:100px;">Add</button></div>
+   </div>
+</div>
+
+<script>
+const PASSWORD = "aidensucksdih";
+const tips = ["Aiden got nothing on this", "Aiden still thinks he's in the group?", "GoGuardian is a myth", "I'd cook y'all in Roblox Rivals"];
+let lastTipIndex = -1, animationId;
+
+/* --- ALL LINKS RESTORED --- */
+const games = [
+    { label: "DoggyD1mwit's Emulator", url: "https://doggyd1mwit-emulator.vercel.app/" },
+    { label: "Now.gg", url: "https://nowgg.fun" },
+    { label: "Now.gg 2", url: "https://nowgg.lol" },
+    { label: "NautilusOS", url: "https://studycom-mu.vercel.app" },
+    { label: "Bloxd", url: "https://bloxd.io" },
+    { label: "EaglerCraft", url: "https://eaglercraft.com" },
+    { label: "Dashmetry", url: "https://dashmetry.com" },
+    { label: "Slope", url: "https://slopeonline.online" }
+];
+
+const frogieLinks = [
+   { label: "Arcade Instance 1", url: "https://brooklyn.foundation" },
+   { label: "Arcade Instance 2", url: "https://parkviewpylusd.org" },
+   { label: "Arcade Instance 3", url: "https://denisonisd.org" },
+   { label: "Arcade Instance 4", url: "https://gloverschool.org" },
+   { label: "Arcade Instance 5", url: "https://phi.bz" },
+   { label: "Arcade Instance 6", url: "https://play.frogiee1.org" },
+   { label: "Arcade Instance 7", url: "https://play.frogiee1.net/" },
+   { label: "Arcade Instance 8", url: "https://larp.now" },
+   { label: "Arcade Instance 9", url: "https://highschoolmathteachers.com" },
+   { label: "Arcade Instance 10", url: "https://larp.foundation" },
+   { label: "Arcade Instance 11", url: "https://vallejocharterschool.org" },
+   { label: "Arcade Instance 12", url: "https://trinitypreschoolmp.org" },
+   { label: "Arcade Instance 13", url: "https://ixl.rocks" },
+   { label: "Arcade Instance 14", url: "https://ixl.works" },
+   { label: "Arcade Instance 15", url: "https://smdpschool.org" },
+   { label: "Arcade Instance 16", url: "https://oldmillschool.org" },
+   { label: "Arcade Instance 17", url: "https://dash.learnenglishinmerton.org" },
+   { label: "Arcade Instance 18", url: "https://frogiesarcade.net" },
+   { label: "Arcade Instance 19", url: "https://goguardian-is.verymad.net" },
+   { label: "Arcade Instance 20", url: "https://frogiesarcade.xyz" }
+];
+
+/* --- BOOT ENGINE --- */
+function initBoot() {
+    const log = document.getElementById("bootLog");
+    const bar = document.getElementById("bootBar");
+    let p = 0;
+    const interval = setInterval(() => {
+        p++; bar.style.width = p + "%";
+        if(p >= 100) { clearInterval(interval); document.getElementById("bootScreen").style.display="none"; document.getElementById("passwordOverlay").style.display="flex"; }
+    }, 15);
+    ["> Syncing Arcade Directory...", "> Initializing Theme Engine...", "> Loading User Assets..."].forEach((l, i) => setTimeout(() => { log.innerHTML += `<div>${l}</div>`; }, i * 400));
+}
+initBoot();
+
+/* --- ANIMATION ENGINE --- */
+const canvas = document.getElementById("themeCanvas");
+const ctx = canvas.getContext("2d");
+
+function initTheme(theme) {
+    cancelAnimationFrame(animationId);
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    
+    if (theme === "sakura") {
+        const petals = Array(40).fill(0).map(() => ({
+            x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+            size: Math.random()*7+5, velY: Math.random()*0.9+0.6, velX: Math.random()*0.5-0.25,
+            angle: Math.random()*Math.PI*2, spin: Math.random()*0.02-0.01
+        }));
+        function update() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            petals.forEach(p => {
+                p.y += p.velY; p.x += p.velX + Math.sin(p.y/45); p.angle += p.spin;
+                if(p.y > canvas.height) p.y = -15;
+                ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.angle);
+                ctx.fillStyle = "#ffb7c5"; ctx.beginPath();
+                ctx.moveTo(0,0); ctx.quadraticCurveTo(p.size, -p.size, p.size*2, 0);
+                ctx.quadraticCurveTo(p.size, p.size, 0,0); ctx.fill(); ctx.restore();
+            });
+            animationId = requestAnimationFrame(update);
+        }
+        update();
+    } else if (theme === "hacker") {
+        const cols = canvas.width / 14, drops = Array(Math.floor(cols)).fill(1);
+        function drawHacker() {
+            ctx.fillStyle = "rgba(0,0,0,0.08)"; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0"; ctx.font = "14px monospace";
+            drops.forEach((y, i) => {
+                ctx.fillText(Math.floor(Math.random()*2), i*14, y*14);
+                if(y*14 > canvas.height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
+            });
+            animationId = requestAnimationFrame(drawHacker);
+        }
+        drawHacker();
+    }
+}
+
+/* --- CORE LOGIC --- */
+document.getElementById("saveSettings").onclick = () => {
+    const t = document.getElementById("themeSelect").value;
+    document.body.setAttribute("data-theme", t);
+    document.body.setAttribute("data-light", document.getElementById("lightToggle").checked);
+    initTheme(t);
+};
+
+document.getElementById("applyCloak").onclick = () => {
+    const n = document.getElementById("cloakName").value, i = document.getElementById("cloakIcon").value;
+    if(n) document.title = n; if(i) document.getElementById("favicon").href = i;
+};
+document.getElementById("resetCloak").onclick = () => {
+    document.title = "DoggyD1mwit's Lair";
+    document.getElementById("favicon").href = "https://www.google.com/favicon.ico";
+};
+
+function nav(id) {
+    const s = document.getElementById("transitionScreen");
+    let idx; do { idx = Math.floor(Math.random()*tips.length); } while(idx === lastTipIndex);
+    lastTipIndex = idx; document.getElementById("transitionTip").textContent = tips[idx];
+    s.style.display = "flex";
+    setTimeout(() => { s.style.display="none"; switchPage(id); }, 1000);
+}
+
+function switchPage(id) {
+    document.getElementById("mainPage").style.display = "none";
+    document.querySelectorAll('.section').forEach(x => x.style.display = "none");
+    const t = document.getElementById(id); t.style.display = (id === "mainPage") ? "block" : "flex";
+    if(id === 'frogiePage') render(frogieLinks, 'frogieList');
+    if(id === 'gamesPage') render(games, 'gamesList');
+}
+
+function render(l, id) {
+    const c = document.getElementById(id); c.innerHTML = "";
+    l.forEach(i => { const b = document.createElement("button"); b.textContent = i.label; b.onclick = () => openP(i.url); c.appendChild(b); });
+}
+
+function openP(u) {
+    const w = window.open("about:blank", "_blank");
+    const ifr = w.document.createElement("iframe");
+    ifr.src = u.includes("://") ? u : "https://" + u;
+    ifr.style.width="100%"; ifr.style.height="100vh"; ifr.style.border="none";
+    w.document.body.style.margin="0"; w.document.body.appendChild(ifr);
+}
+
+document.getElementById("loginBtn").onclick = () => {
+    if(document.getElementById("passInput").value === PASSWORD) {
+        document.getElementById("passwordOverlay").style.display = "none";
+        document.getElementById("appContainer").style.display = "block";
+    }
+};
+
+document.getElementById("themeSelect").onchange = function() {
+    const wrap = document.getElementById("lightToggleWrap");
+    if(this.value === "default") wrap.classList.remove("disabled");
+    else { wrap.classList.add("disabled"); document.getElementById("lightToggle").checked = false; }
+};
+</script>
+</body>
+</html>
