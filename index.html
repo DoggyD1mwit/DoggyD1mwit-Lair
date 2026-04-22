@@ -88,7 +88,6 @@ body { margin: 0; height: 100vh; display: flex; align-items: center; justify-con
 #passwordOverlay { position: fixed; inset: 0; background: #0a0a0a; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s ease; }
 #passwordOverlay.visible { opacity: 1; pointer-events: all; }
 
-/* FIX: display: none to prevent flashing before login */
 .app { position: relative; display: none; width: 95%; max-width: 900px; height: 85vh; padding: 40px; background: var(--panel); border: 1px solid var(--border); overflow-y: auto; z-index: 5; backdrop-filter: blur(10px); }
 .section { display: none; position: absolute; inset: 0; padding: 35px; flex-direction: column; background: transparent; }
 
@@ -96,12 +95,16 @@ button { width: 100%; padding: 14px; background: var(--btn); border: 1px solid v
 button:hover { filter: brightness(1.2); transform: translateY(-1px); }
 input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; outline: none; }
 
+/* --- SHARP SWITCH --- */
 .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--switch-off); border: 1px solid var(--border); }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--switch-off); border: 1px solid var(--border); transition: 0.3s; }
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--text); transition: .3s; }
 input:checked + .slider { background-color: var(--switch-on); }
 input:checked + .slider:before { transform: translateX(24px); background-color: var(--bg); }
+
+/* Lock State */
+.switch-locked { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
 
 #themeCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
 
@@ -158,9 +161,12 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
             <option value="hacker">Hacker</option>
             <option value="pride">Pride</option>
         </select>
-        <div id="lightToggleWrap" style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:15px; border:1px solid var(--border); margin-top:10px;">
-            <span>Light Mode</span>
-            <label class="switch"><input type="checkbox" id="lightToggle"><span class="slider"></span></label>
+        <div id="lightToggleRow" style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:15px; border:1px solid var(--border); margin-top:10px;">
+            <span>Light Mode (Default Only)</span>
+            <label id="lightSwitchLabel" class="switch">
+                <input type="checkbox" id="lightToggle">
+                <span class="slider"></span>
+            </label>
         </div>
    </div>
 
@@ -193,6 +199,7 @@ const tips = ["Aiden got nothing on this", "Aiden still thinks he's in the group
 let lastTipIndex = -1;
 let animationId;
 
+/* --- LINKS --- */
 const games = [
     { label: "DoggyD1mwit's Emulator", url: "https://doggyd1mwit-emulator.vercel.app/" },
     { label: "Now.gg", url: "https://nowgg.fun" },
@@ -227,11 +234,10 @@ const frogieLinks = [
    { label: "Arcade Instance 20", url: "https://frogiesarcade.xyz" }
 ];
 
+/* --- BOOT --- */
 const bootMessages = [
     "D1MWIT_BIOS v4.02 Loading...",
     "CPU: Doggy-Dimwit Core i9 @ 5.4GHz",
-    "Memory Check: 65536MB OK",
-    "Initializing bypass protocols...",
     "GoGuardian detection: NULL",
     "Injecting stealth scripts...",
     "Synchronizing Arcade servers...",
@@ -268,10 +274,11 @@ function initBoot() {
 document.getElementById("loginBtn").onclick = () => {
     if(document.getElementById("passInput").value === PASSWORD) {
         document.getElementById("passwordOverlay").classList.add("swipe-up");
-        document.getElementById("appContainer").style.display = "block"; // Only show now
+        document.getElementById("appContainer").style.display = "block";
     } else { alert("ACCESS DENIED"); }
 };
 
+/* --- NAV --- */
 function openP(u) {
     const win = window.open("about:blank", "_blank");
     win.document.body.style.margin = "0";
@@ -306,7 +313,7 @@ function renderList(l, id) {
     });
 }
 
-/* --- RESTORED HACKER BACKGROUND ENGINE --- */
+/* --- THEMES & LOCK LOGIC --- */
 const canvas = document.getElementById("themeCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -314,7 +321,6 @@ function initThemeAnims(theme) {
     cancelAnimationFrame(animationId);
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     ctx.clearRect(0,0,canvas.width, canvas.height);
-    
     if (theme === "hacker") {
         const cols = canvas.width / 14, drops = Array(Math.floor(cols)).fill(1);
         function drawHacker() {
@@ -331,8 +337,23 @@ function initThemeAnims(theme) {
 }
 
 document.getElementById("themeSelect").onchange = (e) => {
-    document.body.setAttribute("data-theme", e.target.value);
-    initThemeAnims(e.target.value);
+    const selectedTheme = e.target.value;
+    document.body.setAttribute("data-theme", selectedTheme);
+    
+    const lightToggle = document.getElementById("lightToggle");
+    const lightRow = document.getElementById("lightToggleRow");
+
+    if(selectedTheme !== "default") {
+        // AUTO TURN OFF AND LOCK
+        lightToggle.checked = false;
+        document.body.setAttribute("data-light", "false");
+        lightRow.classList.add("switch-locked");
+    } else {
+        // UNLOCK
+        lightRow.classList.remove("switch-locked");
+    }
+    
+    initThemeAnims(selectedTheme);
 };
 
 document.getElementById("lightToggle").onchange = (e) => {
