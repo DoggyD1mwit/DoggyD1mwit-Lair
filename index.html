@@ -34,18 +34,18 @@
 }
 
 [data-theme="blue-aura"] {
-    --bg: #001219;
-    --panel: rgba(255, 255, 255, 0.1);
+    --bg: #000810;
+    --panel: rgba(0, 20, 40, 0.85);
     --accent: #00e5ff;
-    --text: #e9d8a6;
-    --btn: rgba(255, 255, 255, 0.05);
-    --border: rgba(0, 229, 255, 0.3);
+    --text: #e0faff;
+    --btn: rgba(0, 229, 255, 0.1);
+    --border: #00e5ff;
     --glow: rgba(0, 229, 255, 0.4);
 }
 
 [data-theme="sakura"] {
-    --bg: #2d1b2e;
-    --panel: linear-gradient(145deg, #4a2c4d, #2d1b2e);
+    --bg: #1a0f1a;
+    --panel: rgba(45, 27, 46, 0.9);
     --accent: #ffb7c5;
     --text: #ffe5ec;
     --btn: #5e3661;
@@ -61,16 +61,6 @@
     --btn: #001100;
     --border: #003300;
     --glow: rgba(0, 255, 65, 0.3);
-}
-
-[data-theme="pride"] {
-    --bg: linear-gradient(#E50000 0%, #E50000 16.6%, #FF8D00 16.6%, #FF8D00 33.3%, #FFEE00 33.3%, #FFEE00 50%, #028121 50%, #028121 66.6%, #004CFF 66.6%, #004CFF 83.3%, #770088 83.3%, #770088 100%);
-    --panel: rgba(0,0,0,0.85);
-    --accent: #fff;
-    --text: #fff;
-    --btn: rgba(255,255,255,0.1);
-    --border: #fff;
-    --glow: rgba(255, 255, 255, 0.4);
 }
 
 /* --- UI STYLES --- */
@@ -97,10 +87,9 @@ button { width: 100%; padding: 14px; background: var(--btn); border: 1px solid v
 button:hover { filter: brightness(1.2); transform: translateY(-1px); }
 input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; outline: none; }
 
-/* Custom Context Menu */
 #customMenu { position: fixed; display: none; z-index: 10000; background: #1a1a1a; border: 1px solid #fff; box-shadow: 5px 5px 0 #000; }
-#customMenu button { margin: 0; padding: 10px 20px; width: auto; border: none; box-shadow: none; font-size: 12px; }
-#customMenu button:hover { background: #ff0000; color: #fff; }
+#customMenu button { margin: 0; padding: 10px 20px; width: auto; border: none; box-shadow: none; font-size: 12px; color: white !important; }
+#customMenu button:hover { background: #ff0000; }
 
 .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -172,7 +161,6 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
             <option value="blue-aura">Blue Aura</option>
             <option value="sakura">Sakura</option>
             <option value="hacker">Hacker</option>
-            <option value="pride">Pride</option>
         </select>
         <div id="lightToggleRow" style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:15px; border:1px solid var(--border); margin-top:10px;">
             <span>Light Mode (Default Only)</span>
@@ -217,7 +205,7 @@ let lastTipIndex = -1;
 let animationId;
 let currentBmIdx = -1;
 
-/* --- STORAGE INITIALIZATION --- */
+/* --- STORAGE & DATA --- */
 let bookmarks = JSON.parse(localStorage.getItem("lair_bookmarks")) || [];
 
 const games = [
@@ -257,12 +245,9 @@ const frogieLinks = [
 const bootMessages = [
     "D1MWIT_BIOS v4.02 Initializing...",
     "CPU: Doggy-Dimwit Core i9 detected.",
-    "GoGuardian detection: FAILED.",
     "Injecting stealth scripts into kernel...",
     "Mounting /dev/lair/games...",
-    "Verifying Aiden's skill level... ERROR: NOT_FOUND.",
     "Establishing secure WebSocket connection...",
-    "Initializing Theme Engine: V-SYNC Enabled.",
     "BOOT SEQUENCE FINISHED.",
     "SYSTEM READY."
 ];
@@ -280,15 +265,11 @@ function initBoot() {
             div.textContent = "> " + bootMessages[currentLine];
             log.appendChild(div);
             log.scrollTop = log.scrollHeight;
-            
             let p = Math.floor(((currentLine + 1) / bootMessages.length) * 100);
             bar.style.width = p + "%";
             percText.textContent = p + "%";
-            
             currentLine++;
-        } else {
-            finishBoot();
-        }
+        } else { finishBoot(); }
     }, 150);
 }
 
@@ -304,7 +285,7 @@ function finishBoot() {
     }, 800);
 }
 
-/* --- CLOAKING LOGIC --- */
+/* --- CLOAKING --- */
 document.getElementById("applyCloak").onclick = () => {
     const name = document.getElementById("cloakName").value;
     const icon = document.getElementById("cloakIcon").value;
@@ -315,29 +296,20 @@ document.getElementById("applyCloak").onclick = () => {
     localStorage.setItem("lair_cloakIcon", icon);
 };
 
-document.getElementById("resetCloak").onclick = () => {
-    document.title = "DoggyD1mwit's Lair";
-    document.getElementById("favicon").href = "https://www.google.com/favicon.ico";
-    localStorage.removeItem("lair_cloakName");
-    localStorage.removeItem("lair_cloakIcon");
-};
-
 document.getElementById("abCloakBtn").onclick = () => {
     const url = window.location.href;
     const win = window.open("about:blank", "_blank");
     if (win) {
         win.document.body.style.margin = "0";
-        win.document.body.style.height = "100vh";
         const iframe = win.document.createElement("iframe");
-        iframe.style = "border:none;width:100%;height:100%;";
+        iframe.style = "border:none;width:100%;height:100vh;";
         iframe.src = url;
         win.document.body.appendChild(iframe);
-        // Redirect current tab to Classroom
         window.location.replace("https://classroom.google.com");
     }
 };
 
-/* --- BOOKMARK LOGIC --- */
+/* --- BOOKMARKS & CONTEXT MENU --- */
 function renderBms() {
     const c = document.getElementById("bookmarkList");
     c.innerHTML = "";
@@ -363,8 +335,6 @@ document.getElementById("addBookmark").onclick = () => {
     if (n && u) {
         bookmarks.push({ label: n, url: u });
         localStorage.setItem("lair_bookmarks", JSON.stringify(bookmarks));
-        document.getElementById("bmName").value = "";
-        document.getElementById("bmUrl").value = "";
         renderBms();
     }
 };
@@ -374,13 +344,10 @@ document.getElementById("delBmBtn").onclick = () => {
         bookmarks.splice(currentBmIdx, 1);
         localStorage.setItem("lair_bookmarks", JSON.stringify(bookmarks));
         renderBms();
-        document.getElementById("customMenu").style.display = "none";
     }
 };
 
-window.onclick = () => document.getElementById("customMenu").style.display = "none";
-
-/* --- CORE APP LOGIC --- */
+/* --- CORE NAV --- */
 document.getElementById("loginBtn").onclick = () => {
     if(document.getElementById("passInput").value === PASSWORD) {
         document.getElementById("passwordOverlay").classList.add("swipe-up");
@@ -394,7 +361,6 @@ document.addEventListener('keydown', (e) => {
         if (document.getElementById("bootScreen").style.display !== "none") { finishBoot(); return; }
         if (document.getElementById("passwordOverlay").classList.contains("visible") && !document.getElementById("passwordOverlay").classList.contains("swipe-up")) { document.getElementById("loginBtn").click(); return; }
         if (active.id === "customUrl") document.getElementById("openCustom").click();
-        if (active.id === "bmName" || active.id === "bmUrl") document.getElementById("addBookmark").click();
     }
 });
 
@@ -414,8 +380,7 @@ function nav(id) {
     s.style.display = "flex";
     setTimeout(() => { 
         s.style.display="none"; 
-        document.getElementById("mainPage").style.display = "none";
-        document.querySelectorAll('.section').forEach(x => x.style.display = "none");
+        document.querySelectorAll('.app > div').forEach(x => x.style.display = "none");
         const t = document.getElementById(id); 
         t.style.display = (id === "mainPage") ? "block" : "flex";
         if(id === 'frogiePage') renderList(frogieLinks, 'frogieList');
@@ -433,7 +398,7 @@ function renderList(l, id) {
     });
 }
 
-/* --- THEME ANIMATIONS --- */
+/* --- VISUAL THEME ENGINE --- */
 const canvas = document.getElementById("themeCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -441,6 +406,7 @@ function initThemeAnims(theme) {
     cancelAnimationFrame(animationId);
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     ctx.clearRect(0,0,canvas.width, canvas.height);
+    
     if (theme === "hacker") {
         const cols = canvas.width / 14, drops = Array(Math.floor(cols)).fill(1);
         function drawHacker() {
@@ -453,6 +419,34 @@ function initThemeAnims(theme) {
             animationId = requestAnimationFrame(drawHacker);
         }
         drawHacker();
+    } else if (theme === "sakura") {
+        const leaves = Array.from({length: 45}, () => ({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*5+2, s: Math.random()*1.2+0.5, o: Math.random()*0.6+0.4, w: Math.random()*0.02}));
+        function drawSakura() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            leaves.forEach(l => {
+                ctx.beginPath(); 
+                ctx.ellipse(l.x, l.y, l.r, l.r*0.6, Math.sin(l.y/50), 0, Math.PI*2);
+                ctx.fillStyle = `rgba(255, 183, 197, ${l.o})`; ctx.fill();
+                l.y += l.s; l.x += Math.sin(l.y/30);
+                if(l.y > canvas.height) l.y = -20;
+            });
+            animationId = requestAnimationFrame(drawSakura);
+        }
+        drawSakura();
+    } else if (theme === "blue-aura") {
+        const fires = Array.from({length: 40}, () => ({x: Math.random()*canvas.width, y: canvas.height + Math.random()*100, size: Math.random()*60+30, speed: Math.random()*2.5+1.2}));
+        function drawFire() {
+            ctx.fillStyle = "rgba(0,8,16,0.2)"; ctx.fillRect(0,0,canvas.width, canvas.height);
+            fires.forEach(f => {
+                const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.size);
+                grad.addColorStop(0, "rgba(0, 229, 255, 0.7)"); grad.addColorStop(1, "transparent");
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(f.x, f.y, f.size, 0, Math.PI*2); ctx.fill();
+                f.y -= f.speed; f.x += Math.sin(f.y/40)*3;
+                if(f.y < -f.size) { f.y = canvas.height + f.size; f.x = Math.random()*canvas.width; }
+            });
+            animationId = requestAnimationFrame(drawFire);
+        }
+        drawFire();
     }
 }
 
@@ -463,19 +457,14 @@ document.getElementById("themeSelect").onchange = (e) => {
         document.getElementById("lightToggle").checked = false;
         document.body.setAttribute("data-light", "false");
         document.getElementById("lightToggleRow").classList.add("switch-locked");
-    } else {
-        document.getElementById("lightToggleRow").classList.remove("switch-locked");
-    }
+    } else { document.getElementById("lightToggleRow").classList.remove("switch-locked"); }
     initThemeAnims(val);
 };
 
-document.getElementById("lightToggle").onchange = (e) => {
-    document.body.setAttribute("data-light", e.target.checked);
-};
-
+document.getElementById("lightToggle").onchange = (e) => { document.body.setAttribute("data-light", e.target.checked); };
 document.getElementById("openCustom").onclick = () => openP(document.getElementById("customUrl").value);
+window.onclick = () => document.getElementById("customMenu").style.display = "none";
 
-// Load Cloak on Startup
 window.onload = () => {
     initBoot();
     const cN = localStorage.getItem("lair_cloakName");
