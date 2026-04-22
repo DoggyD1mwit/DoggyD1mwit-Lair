@@ -55,7 +55,7 @@
 
 [data-theme="hacker"] {
     --bg: #000;
-    --panel: #050505;
+    --panel: rgba(5, 5, 5, 0.9);
     --accent: #00ff41;
     --text: #00ff41;
     --btn: #001100;
@@ -75,31 +75,30 @@
 
 /* --- UI STYLES --- */
 * { box-sizing: border-box; font-family: "JetBrains Mono", monospace; transition: background 0.3s, color 0.3s; }
-body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg); color: var(--text); background-attachment: fixed; }
+body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg); color: var(--text); }
 
-/* Transitions */
 .fade-out { opacity: 0 !important; transition: opacity 0.8s ease-out; pointer-events: none; }
 .swipe-up { transform: translateY(-100%); transition: transform 0.9s cubic-bezier(0.7, 0, 0.2, 1); }
 
-#bootScreen { position: fixed; inset: 0; background: #000; z-index: 10001; padding: 40px; display: flex; flex-direction: column; opacity: 1; }
+#bootScreen { position: fixed; inset: 0; background: #000; z-index: 10001; padding: 40px; display: flex; flex-direction: column; }
 #bootLog { width: 100%; flex-grow: 1; overflow-y: auto; color: #fff; font-size: 12px; line-height: 1.5; margin-bottom: 20px; scroll-behavior: smooth; }
 .progress-container { width: 100%; max-width: 600px; height: 4px; background: #111; margin: 0 auto; overflow: hidden; }
-.progress-bar { width: 0%; height: 100%; background: var(--accent, #fff); transition: width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); box-shadow: 0 0 10px var(--accent); }
+.progress-bar { width: 0%; height: 100%; background: #fff; transition: width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); }
 
 #passwordOverlay { position: fixed; inset: 0; background: #0a0a0a; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s ease; }
 #passwordOverlay.visible { opacity: 1; pointer-events: all; }
 
-.app { position: relative; display: block; width: 95%; max-width: 900px; height: 85vh; padding: 40px; background: var(--panel); border: 1px solid var(--border); overflow-y: auto; z-index: 5; backdrop-filter: blur(10px); }
+/* FIX: display: none to prevent flashing before login */
+.app { position: relative; display: none; width: 95%; max-width: 900px; height: 85vh; padding: 40px; background: var(--panel); border: 1px solid var(--border); overflow-y: auto; z-index: 5; backdrop-filter: blur(10px); }
 .section { display: none; position: absolute; inset: 0; padding: 35px; flex-direction: column; background: transparent; }
 
-button { width: 100%; padding: 14px; background: var(--btn); border: 1px solid var(--border); color: var(--text); cursor: pointer; margin-bottom: 10px; font-weight: bold; box-shadow: 0 4px 0 #000; text-transform: uppercase; transition: 0.2s; }
+button { width: 100%; padding: 14px; background: var(--btn); border: 1px solid var(--border); color: var(--text); cursor: pointer; margin-bottom: 10px; font-weight: bold; box-shadow: 0 4px 0 #000; text-transform: uppercase; }
 button:hover { filter: brightness(1.2); transform: translateY(-1px); }
 input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; outline: none; }
 
-/* --- SHARP APPLE SWITCH --- */
 .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--switch-off); transition: .3s; border: 1px solid var(--border); }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--switch-off); border: 1px solid var(--border); }
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--text); transition: .3s; }
 input:checked + .slider { background-color: var(--switch-on); }
 input:checked + .slider:before { transform: translateX(24px); background-color: var(--bg); }
@@ -108,7 +107,7 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
 
 #transitionScreen { position: fixed; inset: 0; background: var(--bg); z-index: 9998; display: none; flex-direction: column; align-items: center; justify-content: center; }
 .dot-container { display: flex; gap: 10px; }
-.dot { width: 14px; height: 14px; background: var(--accent); animation: dotPulse 1.4s infinite; }
+.dot { width: 14px; height: 14px; background: var(--accent); }
 @keyframes dotPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0; } 40% { transform: scale(1); opacity: 1; } }
 
 #frogieList, #gamesList, #bookmarkList { flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.1); border: 1px solid var(--border); padding: 15px; margin: 15px 0; }
@@ -125,12 +124,12 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
 </div>
 
 <div id="transitionScreen">
-    <div class="dot-container"><div class="dot dot1"></div><div class="dot dot2"></div><div class="dot dot3"></div></div>
+    <div class="dot-container"><div class="dot" style="animation: dotPulse 1.4s infinite;"></div><div class="dot" style="animation: dotPulse 1.4s infinite 0.2s;"></div><div class="dot" style="animation: dotPulse 1.4s infinite 0.4s;"></div></div>
     <div id="transitionTip" style="margin-top:20px; font-size: 14px;">Preparing environment...</div>
 </div>
 
 <div id="passwordOverlay">
-   <div style="padding:45px; background:#111; border:1px solid #333; text-align:center; width:350px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+   <div style="padding:45px; background:#111; border:1px solid #333; text-align:center; width:350px;">
       <h2 style="color:#fff; letter-spacing:4px; font-size:18px; margin-bottom:20px;">SYSTEM LOCKED</h2>
       <input id="passInput" type="password" placeholder="Keyphrase">
       <button id="loginBtn">Decrypt</button>
@@ -152,7 +151,6 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
 
    <div id="settingsPage" class="section">
         <div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Settings</h3></div>
-        <label style="font-size: 12px; margin-bottom:5px; display:block;">Theme</label>
         <select id="themeSelect">
             <option value="default">Default Dark</option>
             <option value="blue-aura">Blue Aura</option>
@@ -160,13 +158,9 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
             <option value="hacker">Hacker</option>
             <option value="pride">Pride</option>
         </select>
-        
         <div id="lightToggleWrap" style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:15px; border:1px solid var(--border); margin-top:10px;">
-            <span style="font-size: 14px;">Light Mode</span>
-            <label class="switch">
-                <input type="checkbox" id="lightToggle">
-                <span class="slider"></span>
-            </label>
+            <span>Light Mode</span>
+            <label class="switch"><input type="checkbox" id="lightToggle"><span class="slider"></span></label>
         </div>
    </div>
 
@@ -174,22 +168,18 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
       <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchFrogie" placeholder="Filter Arcade..."></div>
       <div id="frogieList"></div>
    </div>
-
    <div id="gamesPage" class="section">
       <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchGames" placeholder="Filter Games..."></div>
       <div id="gamesList"></div>
    </div>
-
    <div id="bookmarkPage" class="section">
       <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Bookmarks</h3></div>
       <div id="bookmarkList"></div>
       <div style="display:flex; gap:8px;"><input id="bmName" placeholder="Name"><input id="bmUrl" placeholder="URL"><button id="addBookmark" style="width:100px;">Add</button></div>
    </div>
-
    <div id="cloakPage" class="section">
         <div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Cloaking</h3></div>
-        <input id="cloakName" placeholder="Tab Name">
-        <input id="cloakIcon" placeholder="Favicon Link">
+        <input id="cloakName" placeholder="Tab Name"><input id="cloakIcon" placeholder="Favicon Link">
         <button id="applyCloak">Update Identity</button>
         <button id="resetCloak" style="background:#444; border:none; box-shadow:none;">Reset</button>
         <hr style="border:0; border-top:1px solid var(--border); margin: 20px 0;">
@@ -199,10 +189,10 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
 
 <script>
 const PASSWORD = "aidensucksdih";
-const tips = ["Aiden got nothing on this", "Aiden thinks he's in the friend group?", "GoGuardian is got nothing on this", "I'd cook y'all in Roblox Rivals"];
+const tips = ["Aiden got nothing on this", "Aiden still thinks he's in the group?", "GoGuardian is a myth", "I'd cook y'all in Roblox Rivals"];
 let lastTipIndex = -1;
+let animationId;
 
-/* --- ALL LINKS RESTORED --- */
 const games = [
     { label: "DoggyD1mwit's Emulator", url: "https://doggyd1mwit-emulator.vercel.app/" },
     { label: "Now.gg", url: "https://nowgg.fun" },
@@ -237,24 +227,14 @@ const frogieLinks = [
    { label: "Arcade Instance 20", url: "https://frogiesarcade.xyz" }
 ];
 
-let bookmarks = JSON.parse(localStorage.getItem("lair_bms")) || [];
-
 const bootMessages = [
     "D1MWIT_BIOS v4.02 Loading...",
     "CPU: Doggy-Dimwit Core i9 @ 5.4GHz",
     "Memory Check: 65536MB OK",
     "Initializing bypass protocols...",
-    "Scanning for active filters...",
     "GoGuardian detection: NULL",
-    "Lightspeed Filter: BYPASSED",
     "Injecting stealth scripts...",
-    "Synchronizing with Arcade servers...",
-    "Checking integrity of Game Library...",
-    "Verifying Aiden's skill level... [NOT FOUND]",
-    "Clearing cache and cookies...",
-    "Applying CSS obfuscation...",
-    "Masking hardware ID...",
-    "Rotating proxy addresses...",
+    "Synchronizing Arcade servers...",
     "Loading Theme Engine...",
     "SYSTEM READY."
 ];
@@ -262,10 +242,7 @@ const bootMessages = [
 function initBoot() {
     const log = document.getElementById("bootLog");
     const bar = document.getElementById("bootBar");
-    const bootScreen = document.getElementById("bootScreen");
-    const passOverlay = document.getElementById("passwordOverlay");
     let currentLine = 0;
-    
     const bootInterval = setInterval(() => {
         if (currentLine < bootMessages.length) {
             const div = document.createElement("div");
@@ -277,10 +254,10 @@ function initBoot() {
         } else {
             clearInterval(bootInterval);
             setTimeout(() => {
-                bootScreen.classList.add("fade-out");
+                document.getElementById("bootScreen").classList.add("fade-out");
                 setTimeout(() => {
-                    bootScreen.style.display = "none";
-                    passOverlay.classList.add("visible");
+                    document.getElementById("bootScreen").style.display = "none";
+                    document.getElementById("passwordOverlay").classList.add("visible");
                     document.getElementById("passInput").focus();
                 }, 800);
             }, 600);
@@ -291,12 +268,12 @@ function initBoot() {
 document.getElementById("loginBtn").onclick = () => {
     if(document.getElementById("passInput").value === PASSWORD) {
         document.getElementById("passwordOverlay").classList.add("swipe-up");
+        document.getElementById("appContainer").style.display = "block"; // Only show now
     } else { alert("ACCESS DENIED"); }
 };
 
 function openP(u) {
     const win = window.open("about:blank", "_blank");
-    if (!win) return alert("Pop-up blocked!");
     win.document.body.style.margin = "0";
     const iframe = win.document.createElement("iframe");
     iframe.style = "border:none;width:100%;height:100vh;";
@@ -317,7 +294,6 @@ function nav(id) {
         t.style.display = (id === "mainPage") ? "block" : "flex";
         if(id === 'frogiePage') renderList(frogieLinks, 'frogieList');
         if(id === 'gamesPage') renderList(games, 'gamesList');
-        if(id === 'bookmarkPage') renderBms();
     }, 1000);
 }
 
@@ -325,56 +301,38 @@ function renderList(l, id) {
     const c = document.getElementById(id); c.innerHTML = "";
     l.forEach(i => {
         const b = document.createElement("button");
-        b.textContent = i.label;
-        b.onclick = () => openP(i.url);
+        b.textContent = i.label; b.onclick = () => openP(i.url);
         c.appendChild(b);
     });
 }
 
-function renderBms() {
-    const c = document.getElementById("bookmarkList"); c.innerHTML = "";
-    bookmarks.forEach((bm, i) => {
-        const d = document.createElement("div"); d.style.display = "flex"; d.style.gap = "5px";
-        const b = document.createElement("button"); b.textContent = bm.label; b.style.flexGrow = "1";
-        b.onclick = () => openP(bm.url);
-        const del = document.createElement("button"); del.textContent = "X"; del.style.width = "45px"; del.style.background = "#600";
-        del.onclick = () => { bookmarks.splice(i, 1); localStorage.setItem("lair_bms", JSON.stringify(bookmarks)); renderBms(); };
-        d.append(b, del); c.appendChild(d);
-    });
-}
+/* --- RESTORED HACKER BACKGROUND ENGINE --- */
+const canvas = document.getElementById("themeCanvas");
+const ctx = canvas.getContext("2d");
 
-document.getElementById("addBookmark").onclick = () => {
-    const n = document.getElementById("bmName").value, u = document.getElementById("bmUrl").value;
-    if(n && u) {
-        bookmarks.push({ label: n, url: u });
-        localStorage.setItem("lair_bms", JSON.stringify(bookmarks));
-        document.getElementById("bmName").value = ""; document.getElementById("bmUrl").value = "";
-        renderBms();
+function initThemeAnims(theme) {
+    cancelAnimationFrame(animationId);
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    
+    if (theme === "hacker") {
+        const cols = canvas.width / 14, drops = Array(Math.floor(cols)).fill(1);
+        function drawHacker() {
+            ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0"; ctx.font = "14px monospace";
+            drops.forEach((y, i) => {
+                ctx.fillText(Math.floor(Math.random()*2), i*14, y*14);
+                if(y*14 > canvas.height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
+            });
+            animationId = requestAnimationFrame(drawHacker);
+        }
+        drawHacker();
     }
-};
-
-document.getElementById("searchFrogie").oninput = (e) => {
-    const val = e.target.value.toLowerCase();
-    renderList(frogieLinks.filter(x => x.label.toLowerCase().includes(val)), 'frogieList');
-};
-
-document.getElementById("searchGames").oninput = (e) => {
-    const val = e.target.value.toLowerCase();
-    renderList(games.filter(x => x.label.toLowerCase().includes(val)), 'gamesList');
-};
+}
 
 document.getElementById("themeSelect").onchange = (e) => {
     document.body.setAttribute("data-theme", e.target.value);
-    const wrap = document.getElementById("lightToggleWrap");
-    if(e.target.value !== "default") {
-        wrap.style.opacity = "0.3";
-        wrap.style.pointerEvents = "none";
-        document.getElementById("lightToggle").checked = false;
-        document.body.setAttribute("data-light", "false");
-    } else {
-        wrap.style.opacity = "1";
-        wrap.style.pointerEvents = "all";
-    }
+    initThemeAnims(e.target.value);
 };
 
 document.getElementById("lightToggle").onchange = (e) => {
@@ -382,7 +340,6 @@ document.getElementById("lightToggle").onchange = (e) => {
 };
 
 document.getElementById("openCustom").onclick = () => openP(document.getElementById("customUrl").value);
-
 window.onload = initBoot;
 </script>
 </body>
