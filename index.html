@@ -179,7 +179,7 @@ const PASSWORD = "aidensucksdih";
 const tips = ["Aiden got nothing on this", "Aiden still thinks he's in the group?", "GoGuardian is a myth", "I'd cook y'all in Roblox Rivals"];
 let lastTipIndex = -1, animationId;
 
-/* --- ALL LINKS RESTORED --- */
+/* --- DATABASE --- */
 const games = [
     { label: "DoggyD1mwit's Emulator", url: "https://doggyd1mwit-emulator.vercel.app/" },
     { label: "Now.gg", url: "https://nowgg.fun" },
@@ -214,6 +214,48 @@ const frogieLinks = [
    { label: "Arcade Instance 20", url: "https://frogiesarcade.xyz" }
 ];
 
+let bookmarks = JSON.parse(localStorage.getItem("lair_bookmarks")) || [];
+
+/* --- SEARCH & FILTER LOGIC --- */
+function setupSearch() {
+    // Frogie Filter
+    document.getElementById('searchFrogie').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = frogieLinks.filter(item => item.label.toLowerCase().includes(term));
+        render(filtered, 'frogieList');
+    });
+
+    // Games Filter
+    document.getElementById('searchGames').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = games.filter(item => item.label.toLowerCase().includes(term));
+        render(filtered, 'gamesList');
+    });
+
+    // Enter Key Logic
+    document.addEventListener('keydown', (e) => {
+        if (e.key === "Enter") {
+            const active = document.activeElement;
+            if (active.id === "passInput") document.getElementById("loginBtn").click();
+            if (active.id === "customUrl") handleMainLaunch();
+            if (active.id === "bmName" || active.id === "bmUrl") document.getElementById("addBookmark").click();
+            if (active.id === "cloakName" || active.id === "cloakIcon") document.getElementById("applyCloak").click();
+        }
+    });
+}
+
+function handleMainLaunch() {
+    const input = document.getElementById("customUrl").value.trim();
+    if (!input) return;
+    let target = input;
+    if (!input.includes(".") || input.includes(" ")) {
+        target = "https://www.google.com/search?q=" + encodeURIComponent(input);
+    } else {
+        if (!input.startsWith("http")) target = "https://" + input;
+    }
+    openP(target);
+}
+
 /* --- BOOT ENGINE --- */
 function initBoot() {
     const log = document.getElementById("bootLog");
@@ -221,13 +263,18 @@ function initBoot() {
     let p = 0;
     const interval = setInterval(() => {
         p++; bar.style.width = p + "%";
-        if(p >= 100) { clearInterval(interval); document.getElementById("bootScreen").style.display="none"; document.getElementById("passwordOverlay").style.display="flex"; }
+        if(p >= 100) { 
+            clearInterval(interval); 
+            document.getElementById("bootScreen").style.display="none"; 
+            document.getElementById("passwordOverlay").style.display="flex"; 
+            document.getElementById("passInput").focus();
+        }
     }, 15);
     ["> Syncing Arcade Directory...", "> Initializing Theme Engine...", "> Loading User Assets..."].forEach((l, i) => setTimeout(() => { log.innerHTML += `<div>${l}</div>`; }, i * 400));
 }
 initBoot();
 
-/* --- ANIMATION ENGINE --- */
+/* --- THEMES & ANIMATION --- */
 const canvas = document.getElementById("themeCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -270,7 +317,7 @@ function initTheme(theme) {
     }
 }
 
-/* --- CORE LOGIC --- */
+/* --- CORE UI LOGIC --- */
 document.getElementById("saveSettings").onclick = () => {
     const t = document.getElementById("themeSelect").value;
     document.body.setAttribute("data-theme", t);
@@ -287,6 +334,12 @@ document.getElementById("resetCloak").onclick = () => {
     document.getElementById("favicon").href = "https://www.google.com/favicon.ico";
 };
 
+document.getElementById("abCloakBtn").onclick = () => {
+    const w = window.open("about:blank", "_blank");
+    w.document.write(`<iframe src="${window.location.href}" style="width:100%;height:100vh;border:none;"></iframe>`);
+    w.document.body.style.margin = "0";
+};
+
 function nav(id) {
     const s = document.getElementById("transitionScreen");
     let idx; do { idx = Math.floor(Math.random()*tips.length); } while(idx === lastTipIndex);
@@ -301,6 +354,7 @@ function switchPage(id) {
     const t = document.getElementById(id); t.style.display = (id === "mainPage") ? "block" : "flex";
     if(id === 'frogiePage') render(frogieLinks, 'frogieList');
     if(id === 'gamesPage') render(games, 'gamesList');
+    if(id === 'bookmarkPage') renderBookmarks();
 }
 
 function render(l, id) {
@@ -308,10 +362,32 @@ function render(l, id) {
     l.forEach(i => { const b = document.createElement("button"); b.textContent = i.label; b.onclick = () => openP(i.url); c.appendChild(b); });
 }
 
+function renderBookmarks() {
+    const c = document.getElementById("bookmarkList"); c.innerHTML = "";
+    bookmarks.forEach((bm, i) => {
+        const wrap = document.createElement("div"); wrap.style.display = "flex"; wrap.style.gap="5px";
+        const b = document.createElement("button"); b.textContent = bm.label; b.style.flexGrow = "1";
+        b.onclick = () => openP(bm.url);
+        const del = document.createElement("button"); del.textContent = "X"; del.style.width="45px"; del.style.background="#600";
+        del.onclick = () => { bookmarks.splice(i, 1); localStorage.setItem("lair_bookmarks", JSON.stringify(bookmarks)); renderBookmarks(); };
+        wrap.append(b, del); c.appendChild(wrap);
+    });
+}
+
+document.getElementById("addBookmark").onclick = () => {
+    const n = document.getElementById("bmName").value, u = document.getElementById("bmUrl").value;
+    if(n && u) {
+        bookmarks.push({ label: n, url: u });
+        localStorage.setItem("lair_bookmarks", JSON.stringify(bookmarks));
+        document.getElementById("bmName").value = ""; document.getElementById("bmUrl").value = "";
+        renderBookmarks();
+    }
+};
+
 function openP(u) {
     const w = window.open("about:blank", "_blank");
     const ifr = w.document.createElement("iframe");
-    ifr.src = u.includes("://") ? u : "https://" + u;
+    ifr.src = u;
     ifr.style.width="100%"; ifr.style.height="100vh"; ifr.style.border="none";
     w.document.body.style.margin="0"; w.document.body.appendChild(ifr);
 }
@@ -320,14 +396,21 @@ document.getElementById("loginBtn").onclick = () => {
     if(document.getElementById("passInput").value === PASSWORD) {
         document.getElementById("passwordOverlay").style.display = "none";
         document.getElementById("appContainer").style.display = "block";
+    } else {
+        alert("ACCESS DENIED");
     }
 };
+
+document.getElementById("openCustom").onclick = handleMainLaunch;
 
 document.getElementById("themeSelect").onchange = function() {
     const wrap = document.getElementById("lightToggleWrap");
     if(this.value === "default") wrap.classList.remove("disabled");
     else { wrap.classList.add("disabled"); document.getElementById("lightToggle").checked = false; }
 };
+
+// Start listeners
+setupSearch();
 </script>
 </body>
 </html>
