@@ -175,12 +175,12 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
    </div>
 
    <div id="frogiePage" class="section">
-      <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchFrogie" placeholder="Filter Arcade..."></div>
+      <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchFrogie" placeholder="Filter Arcade..." oninput="filterList('frogieList', this.value)"></div>
       <div id="frogieList"></div>
    </div>
 
    <div id="gamesPage" class="section">
-      <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchGames" placeholder="Filter Games..."></div>
+      <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchGames" placeholder="Filter Games..." oninput="filterList('gamesList', this.value)"></div>
       <div id="gamesList"></div>
    </div>
 
@@ -282,7 +282,7 @@ function initBoot() {
             percText.textContent = p + "%";
             currentLine++;
         } else { finishBoot(); }
-    }, 280); // Increased time for longer boot
+    }, 280);
 }
 
 function finishBoot() {
@@ -295,6 +295,22 @@ function finishBoot() {
         document.getElementById("passwordOverlay").classList.add("visible");
         document.getElementById("passInput").focus();
     }, 800);
+}
+
+/* --- SEARCH FILTER LOGIC --- */
+function filterList(containerId, query) {
+    const container = document.getElementById(containerId);
+    const buttons = container.getElementsByTagName('button');
+    const lowerQuery = query.toLowerCase();
+
+    for (let i = 0; i < buttons.length; i++) {
+        const text = buttons[i].textContent.toLowerCase();
+        if (text.includes(lowerQuery)) {
+            buttons[i].style.display = "";
+        } else {
+            buttons[i].style.display = "none";
+        }
+    }
 }
 
 /* --- CLOAKING --- */
