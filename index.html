@@ -82,9 +82,9 @@ body { margin: 0; height: 100vh; display: flex; align-items: center; justify-con
 body::after { content: ""; position: fixed; bottom: -20vh; left: 50%; transform: translateX(-50%); width: 160vw; height: 70vh; pointer-events: none; z-index: 0; background: radial-gradient(circle at center, var(--glow) 0%, transparent 80%); filter: blur(100px); }
 
 #bootScreen { position: fixed; inset: 0; background: #000; z-index: 10001; padding: 40px; display: flex; flex-direction: column; }
-#bootLog { width: 100%; flex-grow: 1; overflow: hidden; color: #fff; font-size: 13px; }
-.progress-container { width: 100%; max-width: 500px; height: 8px; background: #111; border: 1px solid #333; margin: 0 auto; }
-.progress-bar { width: 0%; height: 100%; background: #fff; }
+#bootLog { width: 100%; flex-grow: 1; overflow-y: auto; color: #fff; font-size: 12px; line-height: 1.5; margin-bottom: 20px; scroll-behavior: smooth; }
+.progress-container { width: 100%; max-width: 600px; height: 10px; background: #111; border: 1px solid #333; margin: 0 auto; position: relative; }
+.progress-bar { width: 0%; height: 100%; background: var(--accent, #fff); transition: width 0.1s linear; }
 
 #transitionScreen { position: fixed; inset: 0; background: var(--bg); z-index: 9998; display: none; flex-direction: column; align-items: center; justify-content: center; }
 .dot-container { display: flex; gap: 10px; }
@@ -130,8 +130,8 @@ input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border:
 <div class="app" id="appContainer">
    <div id="mainPage">
       <h2 style="letter-spacing:6px;">DOGGYD1MWIT'S LAIR</h2>
-      <input id="customUrl" type="text" placeholder="URL or Search Query">
-      <button id="openCustom">Launch</button>
+      <input id="customUrl" type="text" placeholder="Enter Site URL (e.g. google.com)">
+      <button id="openCustom">Launch Site</button>
       <hr style="border:0; border-top:1px solid var(--border); margin: 25px 0;">
       <button onclick="nav('frogiePage')">Frogie's Arcade</button>
       <button onclick="nav('gamesPage')">Games Library</button>
@@ -224,6 +224,34 @@ const frogieLinks = [
 
 let bookmarks = JSON.parse(localStorage.getItem("lair_bms")) || [];
 
+/* --- BOOT SEQUENCE TEXT --- */
+const bootMessages = [
+    "D1MWIT_BIOS v4.02 Loading...",
+    "CPU: Doggy-Dimwit Core i9 @ 5.4GHz",
+    "Memory Check: 65536MB OK",
+    "Initializing bypass protocols...",
+    "Scanning for active filters...",
+    "GoGuardian detection: NULL",
+    "Lightspeed Filter: BYPASSED",
+    "Securly Instance: DISCONNECTED",
+    "Injecting stealth scripts...",
+    "Loading encrypted data packets...",
+    "Synchronizing with Arcade servers...",
+    "Mounting /dev/root/arcade",
+    "Mounting /dev/user/lair",
+    "Checking integrity of Game Library...",
+    "Verifying Aiden's skill level... [ERROR: NOT FOUND]",
+    "Clearing cache and cookies...",
+    "Generating virtual environment...",
+    "Applying CSS obfuscation...",
+    "Masking hardware ID...",
+    "Rotating proxy addresses...",
+    "Setting up local sandbox...",
+    "Loading Theme Engine...",
+    "Booting UI Shell...",
+    "SYSTEM READY."
+];
+
 /* --- CORE FUNCTIONS --- */
 
 function autoApplySettings() {
@@ -240,21 +268,16 @@ function autoApplySettings() {
     initThemeAnims(t);
 }
 
-function handleSearch() {
+function handleLaunch() {
     const query = document.getElementById("customUrl").value.trim();
     if(!query) return;
 
     let url = query;
-    if(!query.includes(".") || query.includes(" ")) {
-        url = "https://www.google.com/search?q=" + encodeURIComponent(query);
-    } else {
-        if(!query.startsWith("http")) url = "https://" + query;
-    }
+    if(!query.startsWith("http")) url = "https://" + query;
     openP(url);
 }
 
 function openP(u) {
-    // This method bypasses frame blocks by creating a new blank document window
     const win = window.open("about:blank", "_blank");
     if (!win) return alert("Pop-up blocked! Allow pop-ups to launch sites.");
     
@@ -268,32 +291,45 @@ function openP(u) {
     win.document.body.appendChild(iframe);
 }
 
-/* --- BOOT & INITIALIZATION --- */
+/* --- BOOT ENGINE --- */
 
 function initBoot() {
     const log = document.getElementById("bootLog");
     const bar = document.getElementById("bootBar");
-    let p = 0;
-    const interval = setInterval(() => {
-        p++; bar.style.width = p + "%";
-        if(p >= 100) { 
-            clearInterval(interval); 
-            document.getElementById("bootScreen").style.display="none"; 
-            document.getElementById("passwordOverlay").style.display="flex"; 
-            document.getElementById("passInput").focus();
+    let currentLine = 0;
+    
+    // Total boot time is controlled by line intervals
+    const lineDelay = 250; // Delay per line of text
+    
+    const bootInterval = setInterval(() => {
+        if (currentLine < bootMessages.length) {
+            const div = document.createElement("div");
+            div.textContent = "> " + bootMessages[currentLine];
+            log.appendChild(div);
+            log.scrollTop = log.scrollHeight;
+            
+            // Progress bar matches text progress
+            let progress = ((currentLine + 1) / bootMessages.length) * 100;
+            bar.style.width = progress + "%";
+            
+            currentLine++;
+        } else {
+            clearInterval(bootInterval);
+            setTimeout(() => {
+                document.getElementById("bootScreen").style.display = "none";
+                document.getElementById("passwordOverlay").style.display = "flex";
+                document.getElementById("passInput").focus();
+            }, 800);
         }
-    }, 15);
-    ["> Syncing Arcade Directory...", "> Initializing Theme Engine...", "> Loading User Assets..."].forEach((l, i) => setTimeout(() => { log.innerHTML += `<div>${l}</div>`; }, i * 400));
+    }, lineDelay);
 }
 
 window.onload = () => {
     initBoot();
     
-    // Auto-Apply listeners
     document.getElementById("themeSelect").addEventListener("change", autoApplySettings);
     document.getElementById("lightToggle").addEventListener("change", autoApplySettings);
 
-    // Search filters
     document.getElementById("searchFrogie").addEventListener("input", (e) => {
         const val = e.target.value.toLowerCase();
         render(frogieLinks.filter(x => x.label.toLowerCase().includes(val)), 'frogieList');
@@ -303,12 +339,11 @@ window.onload = () => {
         render(games.filter(x => x.label.toLowerCase().includes(val)), 'gamesList');
     });
 
-    // Enter Key
     document.addEventListener("keydown", (e) => {
         if(e.key === "Enter") {
             const active = document.activeElement;
             if(active.id === "passInput") document.getElementById("loginBtn").click();
-            if(active.id === "customUrl") handleSearch();
+            if(active.id === "customUrl") handleLaunch();
             if(active.id === "bmName" || active.id === "bmUrl") document.getElementById("addBookmark").click();
         }
     });
@@ -367,7 +402,7 @@ document.getElementById("loginBtn").onclick = () => {
     } else { alert("WRONG KEY"); }
 };
 
-document.getElementById("openCustom").onclick = handleSearch;
+document.getElementById("openCustom").onclick = handleLaunch;
 
 document.getElementById("applyCloak").onclick = () => {
     const n = document.getElementById("cloakName").value, i = document.getElementById("cloakIcon").value;
