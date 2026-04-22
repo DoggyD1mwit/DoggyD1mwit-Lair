@@ -81,7 +81,7 @@ body { margin: 0; height: 100vh; display: flex; align-items: center; justify-con
 .swipe-up { transform: translateY(-100%); transition: transform 0.9s cubic-bezier(0.7, 0, 0.2, 1); }
 
 #bootScreen { position: fixed; inset: 0; background: #000; z-index: 10001; padding: 40px; display: flex; flex-direction: column; }
-#bootLog { width: 100%; flex-grow: 1; overflow-y: auto; color: #fff; font-size: 12px; line-height: 1.5; margin-bottom: 20px; scroll-behavior: smooth; }
+#bootLog { width: 100%; flex-grow: 1; overflow-y: auto; color: #fff; font-size: 11px; line-height: 1.4; margin-bottom: 20px; scroll-behavior: smooth; }
 .progress-container { width: 100%; max-width: 600px; height: 4px; background: #111; margin: 0 auto; overflow: hidden; }
 .progress-bar { width: 0%; height: 100%; background: #fff; transition: width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); }
 
@@ -95,15 +95,12 @@ button { width: 100%; padding: 14px; background: var(--btn); border: 1px solid v
 button:hover { filter: brightness(1.2); transform: translateY(-1px); }
 input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; outline: none; }
 
-/* --- SHARP SWITCH --- */
 .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--switch-off); border: 1px solid var(--border); transition: 0.3s; }
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--text); transition: .3s; }
 input:checked + .slider { background-color: var(--switch-on); }
 input:checked + .slider:before { transform: translateX(24px); background-color: var(--bg); }
-
-/* Lock State */
 .switch-locked { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
 
 #themeCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
@@ -127,7 +124,11 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
 </div>
 
 <div id="transitionScreen">
-    <div class="dot-container"><div class="dot" style="animation: dotPulse 1.4s infinite;"></div><div class="dot" style="animation: dotPulse 1.4s infinite 0.2s;"></div><div class="dot" style="animation: dotPulse 1.4s infinite 0.4s;"></div></div>
+    <div class="dot-container">
+        <div class="dot" style="animation: dotPulse 1.4s infinite;"></div>
+        <div class="dot" style="animation: dotPulse 1.4s infinite 0.2s;"></div>
+        <div class="dot" style="animation: dotPulse 1.4s infinite 0.4s;"></div>
+    </div>
     <div id="transitionTip" style="margin-top:20px; font-size: 14px;">Preparing environment...</div>
 </div>
 
@@ -174,15 +175,18 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
       <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchFrogie" placeholder="Filter Arcade..."></div>
       <div id="frogieList"></div>
    </div>
+
    <div id="gamesPage" class="section">
       <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><input id="searchGames" placeholder="Filter Games..."></div>
       <div id="gamesList"></div>
    </div>
+
    <div id="bookmarkPage" class="section">
       <div style="display:flex; gap:10px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Bookmarks</h3></div>
       <div id="bookmarkList"></div>
       <div style="display:flex; gap:8px;"><input id="bmName" placeholder="Name"><input id="bmUrl" placeholder="URL"><button id="addBookmark" style="width:100px;">Add</button></div>
    </div>
+
    <div id="cloakPage" class="section">
         <div style="display:flex; gap:10px; margin-bottom:15px;"><button onclick="nav('mainPage')" class="back-btn">Back</button><h3>Cloaking</h3></div>
         <input id="cloakName" placeholder="Tab Name"><input id="cloakIcon" placeholder="Favicon Link">
@@ -199,7 +203,6 @@ const tips = ["Aiden got nothing on this", "Aiden still thinks he's in the group
 let lastTipIndex = -1;
 let animationId;
 
-/* --- LINKS --- */
 const games = [
     { label: "DoggyD1mwit's Emulator", url: "https://doggyd1mwit-emulator.vercel.app/" },
     { label: "Now.gg", url: "https://nowgg.fun" },
@@ -234,14 +237,34 @@ const frogieLinks = [
    { label: "Arcade Instance 20", url: "https://frogiesarcade.xyz" }
 ];
 
-/* --- BOOT --- */
 const bootMessages = [
-    "D1MWIT_BIOS v4.02 Loading...",
-    "CPU: Doggy-Dimwit Core i9 @ 5.4GHz",
-    "GoGuardian detection: NULL",
-    "Injecting stealth scripts...",
-    "Synchronizing Arcade servers...",
-    "Loading Theme Engine...",
+    "D1MWIT_BIOS v4.02 Initializing...",
+    "CPU: Doggy-Dimwit Core i9 @ 5.4GHz detected.",
+    "Memory Test: 65536MB OK.",
+    "Detecting hardware peripherals...",
+    "Keyboard... Found.",
+    "Display... Found (UltraWide/OLED).",
+    "Initializing bypass protocols...",
+    "Scanning for active network filters...",
+    "GoGuardian detection: FAILED (Obfuscated).",
+    "Lightspeed Filter: Status Bypass.",
+    "Securly Instance: Isolated.",
+    "Injecting stealth scripts into kernel...",
+    "Synchronizing with Arcade servers...",
+    "Fetching node list [20/20 active]...",
+    "Mounting /dev/lair/games...",
+    "Verifying Aiden's skill level... ERROR: NOT_FOUND.",
+    "Clearing temporary browser cache...",
+    "Setting up virtual sandbox environment...",
+    "Applying CSS layer obfuscation...",
+    "Masking hardware fingerprint ID...",
+    "Rotating residential proxy addresses...",
+    "Establishing secure WebSocket connection...",
+    "Initializing Theme Engine: V-SYNC Enabled.",
+    "Compiling UI shaders...",
+    "Loading Mainframe resources...",
+    "System check complete. No threats found.",
+    "BOOT SEQUENCE FINISHED.",
     "SYSTEM READY."
 ];
 
@@ -249,7 +272,7 @@ function initBoot() {
     const log = document.getElementById("bootLog");
     const bar = document.getElementById("bootBar");
     let currentLine = 0;
-    const bootInterval = setInterval(() => {
+    window.bootInterval = setInterval(() => {
         if (currentLine < bootMessages.length) {
             const div = document.createElement("div");
             div.textContent = "> " + bootMessages[currentLine];
@@ -258,17 +281,21 @@ function initBoot() {
             bar.style.width = ((currentLine + 1) / bootMessages.length * 100) + "%";
             currentLine++;
         } else {
-            clearInterval(bootInterval);
-            setTimeout(() => {
-                document.getElementById("bootScreen").classList.add("fade-out");
-                setTimeout(() => {
-                    document.getElementById("bootScreen").style.display = "none";
-                    document.getElementById("passwordOverlay").classList.add("visible");
-                    document.getElementById("passInput").focus();
-                }, 800);
-            }, 600);
+            finishBoot();
         }
-    }, 180);
+    }, 120);
+}
+
+function finishBoot() {
+    clearInterval(window.bootInterval);
+    const boot = document.getElementById("bootScreen");
+    if (boot.style.display === "none") return;
+    boot.classList.add("fade-out");
+    setTimeout(() => {
+        boot.style.display = "none";
+        document.getElementById("passwordOverlay").classList.add("visible");
+        document.getElementById("passInput").focus();
+    }, 800);
 }
 
 document.getElementById("loginBtn").onclick = () => {
@@ -278,7 +305,31 @@ document.getElementById("loginBtn").onclick = () => {
     } else { alert("ACCESS DENIED"); }
 };
 
-/* --- NAV --- */
+/* --- ENTER KEY LOGIC --- */
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const active = document.activeElement;
+        const boot = document.getElementById("bootScreen");
+        const pass = document.getElementById("passwordOverlay");
+
+        if (boot.style.display !== "none") {
+            finishBoot();
+            return;
+        }
+        if (pass.classList.contains("visible") && !pass.classList.contains("swipe-up")) {
+            document.getElementById("loginBtn").click();
+            return;
+        }
+        if (active.id === "customUrl") {
+            document.getElementById("openCustom").click();
+        } else if (active.id === "bmName" || active.id === "bmUrl") {
+            document.getElementById("addBookmark").click();
+        } else if (active.id === "cloakName" || active.id === "cloakIcon") {
+            document.getElementById("applyCloak").click();
+        }
+    }
+});
+
 function openP(u) {
     const win = window.open("about:blank", "_blank");
     win.document.body.style.margin = "0";
@@ -313,7 +364,6 @@ function renderList(l, id) {
     });
 }
 
-/* --- THEMES & LOCK LOGIC --- */
 const canvas = document.getElementById("themeCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -337,23 +387,18 @@ function initThemeAnims(theme) {
 }
 
 document.getElementById("themeSelect").onchange = (e) => {
-    const selectedTheme = e.target.value;
-    document.body.setAttribute("data-theme", selectedTheme);
-    
-    const lightToggle = document.getElementById("lightToggle");
-    const lightRow = document.getElementById("lightToggleRow");
-
-    if(selectedTheme !== "default") {
-        // AUTO TURN OFF AND LOCK
-        lightToggle.checked = false;
+    const val = e.target.value;
+    document.body.setAttribute("data-theme", val);
+    const toggle = document.getElementById("lightToggle");
+    const row = document.getElementById("lightToggleRow");
+    if(val !== "default") {
+        toggle.checked = false;
         document.body.setAttribute("data-light", "false");
-        lightRow.classList.add("switch-locked");
+        row.classList.add("switch-locked");
     } else {
-        // UNLOCK
-        lightRow.classList.remove("switch-locked");
+        row.classList.remove("switch-locked");
     }
-    
-    initThemeAnims(selectedTheme);
+    initThemeAnims(val);
 };
 
 document.getElementById("lightToggle").onchange = (e) => {
